@@ -3,7 +3,7 @@
 <!-- DASHBOARD:START -->
 ## 📊 Suivi du paper trading
 
-*Mis à jour automatiquement le 24/11/2026 à 16:04 UTC, bougie du 23/11/2026. Jour 1 du test, argent fictif.*
+*Mis à jour automatiquement le 24/11/2026 à 16:07 UTC, bougie du 23/11/2026. Jour 1 du test, argent fictif.*
 
 | Valeur | Depuis le départ | BTC, même période | Repli actuel | Investi |
 |:---:|:---:|:---:|:---:|:---:|
