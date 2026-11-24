@@ -24,9 +24,9 @@ def generate_orders(units: pd.Series, px: pd.Series, cash: float, target: pd.Ser
         if p is None or np.isnan(p) or p <= 0:
             continue
         wt, wc = float(tgt[a]), float(cur_w[a])
-        if wt == 0 and units[a] > 0:
+        if wt == 0 and units[a] != 0:
             orders[a] = -float(units[a])
-        elif abs(wt - wc) > threshold or (wt > 0 and wc == 0 and wt > threshold / 2):
+        elif abs(wt - wc) > threshold or (wt != 0 and wc == 0 and abs(wt) > threshold / 2):
             orders[a] = (wt * equity - units[a] * p) / p
     return orders
 

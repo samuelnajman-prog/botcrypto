@@ -28,7 +28,8 @@ class BacktestResult:
 
 
 def prepare(mats: dict[str, pd.DataFrame], cfg: Config) -> Signals:
-    return compute_signals(mats["close"], mats["high"], mats["low"], mats["quote_volume"], cfg)
+    return compute_signals(mats["close"], mats["high"], mats["low"], mats["quote_volume"], cfg,
+                           funding=mats.get("funding") if cfg.allow_short else None)
 
 
 def run_backtest(mats: dict[str, pd.DataFrame], cfg: Config, start: str, end: str | None = None,
@@ -66,7 +67,7 @@ def run_backtest(mats: dict[str, pd.DataFrame], cfg: Config, start: str, end: st
         traded = 0.0
 
         # 1) Séries interrompues : liquidation au dernier prix connu
-        for a in units.index[units > 0]:
+        for a in units.index[units != 0]:
             if np.isnan(o[a]) and np.isnan(c[a]):
                 traded += trade(t, a, -units[a], last_px[a], "delist")
                 high_since_entry.pop(a, None)
@@ -88,9 +89,12 @@ def run_backtest(mats: dict[str, pd.DataFrame], cfg: Config, start: str, end: st
                 traded += trade(t, a, du * scale, px[a], "rebal")
                 high_since_entry[a] = max(high_since_entry.get(a, 0.0), px[a])
 
-        # 3) Valorisation à la clôture
+        # 3) Valorisation à la clôture (+ funding des shorts : encaissé si taux > 0)
         last_px = c.where(c.notna(), last_px)
         pos_val = units * last_px.fillna(0)
+        if sig.funding is not None and (units < 0).any():
+            f = sig.funding.loc[t].fillna(0.0)
+            cash += float((-pos_val.clip(upper=0) * f).sum())
         equity = cash + float(pos_val.sum())
         peak = max(peak, equity)
         dd = 1 - equity / peak
@@ -113,7 +117,7 @@ def run_backtest(mats: dict[str, pd.DataFrame], cfg: Config, start: str, end: st
             pending = target_weights(sig, t, cfg, blocked=blocked, equity_dd=dd)
 
         eq_rec.append(equity)
-        exp_rec.append(float(pos_val.sum()) / equity if equity > 0 else 0.0)
+        exp_rec.append(float(pos_val.abs().sum()) / equity if equity > 0 else 0.0)
         w_rec.append((pos_val / equity).rename(t))
         to_rec.append(traded / equity if equity > 0 else 0.0)
 

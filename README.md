@@ -101,4 +101,4 @@ Lecture honnête : sur la période de test non utilisée pour le réglage, le bo
 
 ## Passer en réel (pas fait, volontairement)
 
-Avant d'y penser : au moins 3 mois de paper trading cohérent avec le backtest, puis un petit montant. Il faudrait ajouter un adaptateur d'exchange (ex. `ccxt`) avec clé API **sans droit de retrait**, des ordres limites, et un contrôle de réconciliation positions/exchange. Attention à la fiscalité française : chaque conversion en euros est un événement imposable (PFU 31,4 % en 2026).
+Avant d'y penser : au moins 3 mois de paper trading cohérent avec le backtest, puis un petit montant. **Binance n'est plus accessible depuis la France (fermeture le 1er juillet 2026, faute d'agrément MiCA)** : les prix Binance restent une bonne référence pour les signaux, mais l'exécution réelle devra passer par une plateforme agréée (Kraken, Coinbase…). Il faudrait ajouter un adaptateur d'exchange (ex. `ccxt`) avec clé API **sans droit de retrait**, des ordres limites, et un contrôle de réconciliation positions/exchange. Attention à la fiscalité française : chaque conversion en euros est un événement imposable (PFU 31,4 % en 2026).

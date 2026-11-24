@@ -107,6 +107,23 @@ Conclusions :
 - Le régime assoupli est meilleur en test mais nettement pire en réglage (−39 % de repli) : non robuste, non retenu.
 - **Décision : la v1 reste en place.**
 
+## 10. Poche short (vente à découverte via perpétuels) testée le 24/11/2026 (rejetée)
+
+Accès : Binance a cessé ses services en France le 1er juillet 2026 (pas d'agrément MiCA). Les perpétuels restent accessibles aux particuliers français via des plateformes régulées MiFID II (Kraken, Coinbase), traités comme des CFD : levier limité à 2:1.
+
+Test : shorts à levier 1x quand la tendance est négative, funding historique réel (archives Binance), frais 0,15 %/ordre. Réglage jugé sur 2020-01 → 2022-12, verdict sur 2023-01 → nov. 2026. Script : `scripts/shorts.py`.
+
+| Variante | Sharpe réglage | Sharpe test | Par an (test) | Pire repli (test) | 2022 | 2026 |
+|---|---|---|---|---|---|---|
+| **v1 : long ou cash** | **1,72** | **0,86** | **+25 %** | −37 % | −11 % | +2 % |
+| + short BTC/ETH ≤ 35 % (marché baissier) | 1,52 | 0,77 | +23 % | −40 % | +11 % | +5 % |
+| + short BTC/ETH ≤ 60 % | 1,25 | 0,66 | +19 % | −44 % | +8 % | +7 % |
+| + short top liquides ≤ 50 % | 1,53 | 0,60 | +16 % | −47 % | +20 % | +11 % |
+| + short top liquides ≤ 100 % | 1,52 | 0,46 | +11 % | −50 % | +37 % | +7 % |
+| Long/short permanent | 1,54 | 0,69 | +18 % | −29 % | +19 % | −5 % |
+
+Conclusions : les shorts rapportent dans les longues baisses (2022, 2026) mais perdent davantage lors des rebonds brutaux et des marchés sans direction (2020, 2023-2024). Toutes les variantes font moins bien que la v1 sur les deux périodes. **Non retenu.** Le moteur garde l'option (`allow_short`, désactivée).
+
 ## Sources
 
 - Prix, volumes et historique : API publique Binance (data-api.binance.vision), CoinGecko `/global`, alternative.me Fear & Greed.

@@ -65,6 +65,11 @@ class Config:
     # Cadence et univers. Les fenêtres ci-dessus sont en JOURS, les paires EWMAC en BOUGIES.
     bar_hours: int = 24                  # 24 = bougies journalières, 4 = bougies 4h
     universe: str = "core"               # "core" (~50 grandes cryptos) ou "wide" (~140)
+    # Poche short via contrats perpétuels (levier 1x, funding encaissé/payé)
+    allow_short: bool = False
+    short_universe: str = "core"         # "core" = BTC/ETH seulement ; "liquid" = univers éligible
+    short_only_risk_off: bool = True     # shorts autorisés seulement quand BTC < MM200
+    short_gross: float = 0.35            # exposition short maximale
 
     @property
     def bpd(self) -> int:
@@ -86,10 +91,11 @@ class Signals:
     risk_on: pd.Series           # bool
     atr: pd.DataFrame
     returns: pd.DataFrame
+    funding: pd.DataFrame | None = None  # funding journalier cumulé (NaN = pas de perpétuel)
 
 
 def compute_signals(close: pd.DataFrame, high: pd.DataFrame, low: pd.DataFrame,
-                    qvol: pd.DataFrame, cfg: Config) -> Signals:
+                    qvol: pd.DataFrame, cfg: Config, funding: pd.DataFrame | None = None) -> Signals:
     rets = close.pct_change(fill_method=None)
     vs = cfg.bars(cfg.vol_span)
     sigma_d = rets.ewm(span=vs, min_periods=vs).std()
@@ -126,7 +132,12 @@ def compute_signals(close: pd.DataFrame, high: pd.DataFrame, low: pd.DataFrame,
     aw = cfg.bars(cfg.atr_window)
     atr = tr.rolling(aw, min_periods=aw).mean()
 
-    return Signals(close, forecast, vol_ann, eligible, risk_on, atr, rets)
+    fund = None
+    if funding is not None:
+        # une colonne par série (LUNA, LUNA#2…) : funding du ticker, seulement quand la série cote
+        fund = pd.DataFrame({c: funding[c.split("#")[0]].reindex(close.index) if c.split("#")[0] in funding else np.nan
+                             for c in close.columns}, index=close.index).where(close.notna())
+    return Signals(close, forecast, vol_ann, eligible, risk_on, atr, rets, fund)
 
 
 def _cap_weights(w: pd.Series, caps: pd.Series, max_gross: float) -> pd.Series:
@@ -138,24 +149,9 @@ def _cap_weights(w: pd.Series, caps: pd.Series, max_gross: float) -> pd.Series:
     return w
 
 
-def target_weights(sig: Signals, t: pd.Timestamp, cfg: Config,
-                   blocked: set | None = None, equity_dd: float = 0.0) -> pd.Series:
-    """Poids cibles à la clôture de t (fraction de l'équité). Somme ≤ 1, reste = cash."""
-    fc = sig.forecast.loc[t]
-    el = sig.eligible.loc[t]
-    risk_on = bool(sig.risk_on.loc[t]) if not pd.isna(sig.risk_on.loc[t]) else False
-
-    cand = fc[el & (fc > 0)].dropna()
-    if blocked:
-        cand = cand.drop([a for a in blocked if a in cand.index])
-    max_gross = cfg.max_gross
-    if not risk_on:
-        max_gross = cfg.risk_off_gross
-        if cfg.risk_off_core_only:
-            cand = cand[[a for a in cand.index if a in cfg.core_assets]]
-    if cand.empty:
-        return pd.Series(dtype=float)
-
+def _size(sig: Signals, t: pd.Timestamp, cfg: Config, cand: pd.Series, max_gross: float,
+          equity_dd: float) -> pd.Series:
+    """Poids (positifs) d'un côté du portefeuille : ∝ force / vol, mis à l'échelle sur la vol cible."""
     cand = cand.sort_values(ascending=False).head(cfg.max_positions)
     vol = sig.vol.loc[t, cand.index].replace(0, np.nan).dropna()
     cand = cand[vol.index]
@@ -185,3 +181,34 @@ def target_weights(sig: Signals, t: pd.Timestamp, cfg: Config,
         if a in caps.index:
             caps[a] = cfg.max_weight_core
     return _cap_weights(w, caps, max_gross)
+
+
+def target_weights(sig: Signals, t: pd.Timestamp, cfg: Config,
+                   blocked: set | None = None, equity_dd: float = 0.0) -> pd.Series:
+    """Poids cibles à la clôture de t (fraction de l'équité). Positif = long spot,
+    négatif = short perpétuel. Somme des longs ≤ 1, reste = cash."""
+    fc = sig.forecast.loc[t]
+    el = sig.eligible.loc[t]
+    risk_on = bool(sig.risk_on.loc[t]) if not pd.isna(sig.risk_on.loc[t]) else False
+
+    # Côté long (identique à la v1)
+    cand = fc[el & (fc > 0)].dropna()
+    if blocked:
+        cand = cand.drop([a for a in blocked if a in cand.index])
+    max_gross = cfg.max_gross
+    if not risk_on:
+        max_gross = cfg.risk_off_gross
+        if cfg.risk_off_core_only:
+            cand = cand[[a for a in cand.index if a in cfg.core_assets]]
+    longs = _size(sig, t, cfg, cand, max_gross, equity_dd) if not cand.empty else pd.Series(dtype=float)
+
+    # Côté short (optionnel)
+    shorts = pd.Series(dtype=float)
+    if cfg.allow_short and sig.funding is not None and (not risk_on or not cfg.short_only_risk_off):
+        neg = (-fc)[el & (fc < 0) & sig.funding.loc[t].notna()].dropna()
+        if cfg.short_universe == "core":
+            neg = neg[[a for a in neg.index if a in cfg.core_assets]]
+        if not neg.empty:
+            shorts = -_size(sig, t, cfg, neg, cfg.short_gross, equity_dd)
+
+    return pd.concat([longs, shorts]) if len(shorts) else longs
