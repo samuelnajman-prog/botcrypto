@@ -108,7 +108,7 @@ def test_cache_never_keeps_open_candle(tmp_path, monkeypatch):
     fake = pd.DataFrame({c: 1.0 for c in ["open", "high", "low", "close", "volume", "quote_volume"]}, index=idx)
     fake.index.name = "date"
     monkeypatch.setattr(data, "DATA_DIR", tmp_path)
-    monkeypatch.setattr(data, "fetch_api", lambda s, start=None: fake.copy())
+    monkeypatch.setattr(data, "fetch_api", lambda s, start=None, interval="1d": fake.copy())
     segs = data.load_symbol("TEST")
     today = idx[-1]
     assert segs["TEST"].index.max() < today                       # pas de bougie du jour

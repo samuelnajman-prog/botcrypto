@@ -25,7 +25,7 @@ import numpy as np
 import pandas as pd
 
 # Scalaires de forecast d'EWMAC (R. Carver, "Systematic Trading") ramenés à |f|≈1
-EWMAC_SCALARS = {(8, 32): 5.3, (16, 64): 3.75, (32, 128): 2.65, (64, 256): 1.87}
+EWMAC_SCALARS = {(2, 8): 10.6, (4, 16): 7.5, (8, 32): 5.3, (16, 64): 3.75, (32, 128): 2.65, (64, 256): 1.87}
 
 
 @dataclass
@@ -62,6 +62,16 @@ class Config:
     # Exécution
     rebalance_threshold: float = 0.05    # n'ajuste que si l'écart de poids > 5 pts
     cost_bps: float = 15.0               # par côté : 10 frais + 5 slippage
+    # Cadence et univers. Les fenêtres ci-dessus sont en JOURS, les paires EWMAC en BOUGIES.
+    bar_hours: int = 24                  # 24 = bougies journalières, 4 = bougies 4h
+    universe: str = "core"               # "core" (~50 grandes cryptos) ou "wide" (~140)
+
+    @property
+    def bpd(self) -> int:
+        return 24 // self.bar_hours
+
+    def bars(self, days: float) -> int:
+        return int(round(days * self.bpd))
 
     def to_dict(self):
         return asdict(self)
@@ -81,8 +91,9 @@ class Signals:
 def compute_signals(close: pd.DataFrame, high: pd.DataFrame, low: pd.DataFrame,
                     qvol: pd.DataFrame, cfg: Config) -> Signals:
     rets = close.pct_change(fill_method=None)
-    sigma_d = rets.ewm(span=cfg.vol_span, min_periods=cfg.vol_span).std()
-    vol_ann = sigma_d * np.sqrt(365)
+    vs = cfg.bars(cfg.vol_span)
+    sigma_d = rets.ewm(span=vs, min_periods=vs).std()
+    vol_ann = sigma_d * np.sqrt(365 * cfg.bpd)
 
     fcs = []
     for f, s in cfg.ewmac_pairs:
@@ -97,20 +108,23 @@ def compute_signals(close: pd.DataFrame, high: pd.DataFrame, low: pd.DataFrame,
 
     # Univers point-in-time par liquidité
     age = close.notna().cumsum()
-    med_qv = qvol.rolling(cfg.liq_window, min_periods=cfg.liq_window).median()
-    base_ok = (age >= cfg.min_history_days) & (med_qv >= cfg.min_median_qvol) & close.notna()
+    lw = cfg.bars(cfg.liq_window)
+    med_qv = qvol.rolling(lw, min_periods=lw).median() * cfg.bpd   # volume journalier équivalent
+    base_ok = (age >= cfg.bars(cfg.min_history_days)) & (med_qv >= cfg.min_median_qvol) & close.notna()
     rank = med_qv.where(base_ok).rank(axis=1, ascending=False)
     eligible = base_ok & (rank <= cfg.top_n_liquid)
 
     btc = close["BTC"]
-    risk_on = (btc > btc.rolling(cfg.regime_ma, min_periods=cfg.regime_ma).mean())
+    rm = cfg.bars(cfg.regime_ma)
+    risk_on = (btc > btc.rolling(rm, min_periods=rm).mean())
     if not cfg.regime_filter:
         risk_on[:] = True
 
     prev_close = close.shift(1)
     tr = pd.concat({"a": high - low, "b": (high - prev_close).abs(), "c": (low - prev_close).abs()})
     tr = tr.groupby(level=1).max().reindex(close.index)[close.columns]
-    atr = tr.rolling(cfg.atr_window, min_periods=cfg.atr_window).mean()
+    aw = cfg.bars(cfg.atr_window)
+    atr = tr.rolling(aw, min_periods=aw).mean()
 
     return Signals(close, forecast, vol_ann, eligible, risk_on, atr, rets)
 
@@ -152,8 +166,8 @@ def target_weights(sig: Signals, t: pd.Timestamp, cfg: Config,
     w = raw / raw.sum()
 
     # Vol de portefeuille estimée sur la covariance glissante
-    hist = sig.returns.loc[:t, w.index].tail(cfg.cov_window)
-    cov = hist.cov(min_periods=30) * 365
+    hist = sig.returns.loc[:t, w.index].tail(cfg.bars(cfg.cov_window))
+    cov = hist.cov(min_periods=30 * cfg.bpd) * (365 * cfg.bpd)
     cov = cov.fillna(0.0)
     for a in w.index:  # diagonale de secours si historique court
         if cov.loc[a, a] == 0:

@@ -84,6 +84,29 @@ Décision « passage au réel » : pas avant 3 mois de paper cohérent, et sur u
 - Rendement du cash : placer la part stablecoin dans un produit d'épargne en stablecoin (risque de contrepartie à évaluer).
 - Filtre d'actualité via l'API Claude : écarté pour l'instant car impossible à backtester proprement.
 
+## 9. Variantes « plus rapides / plus de cryptos » testées le 24/11/2026 (rejetées)
+
+Même protocole : simulation 2019-09 → nov. 2026, réglage jugé sur 2019-09 → 2022-12, verdict sur 2023-01 → nov. 2026 (frais 0,15 %/ordre). Univers « large » = ~140 séries (memecoins, DeFi, IA, nouveaux tokens, tokens morts compris). Script : `scripts/compare.py`.
+
+| Variante | Sharpe réglage | Sharpe test | Par an (test) | Pire repli (test) | Rotation/an |
+|---|---|---|---|---|---|
+| **v1 : journalier, 20 grandes cryptos** | 1,59 | **0,86** | **+25 %** | −37 % | 15× |
+| Journalier, univers large | 1,31 | 0,68 | +18 % | −37 % | 16× |
+| Journalier, univers large, top 30 | 1,39 | 0,79 | +23 % | −44 % | 16× |
+| Journalier, régime assoupli (altcoins permis en marché baissier) | 1,14 | 0,90 | +27 % | −29 % | 15× |
+| 4h, signaux rapides (1-21 j) | 1,68 | 0,87 | +25 % | −38 % | 57× |
+| 4h, signaux très rapides (0,7-11 j) | **1,84** | 0,53 | +13 % | −49 % | 107× |
+| 4h, univers large, rapides | 1,55 | 0,66 | +17 % | −41 % | 56× |
+| 4h rapides, frais doublés | 1,53 | 0,61 | +15 % | −42 % | 57× |
+| v1, frais doublés | 1,54 | 0,79 | +22 % | −38 % | 15× |
+
+Conclusions :
+- Plus c'est rapide, plus c'est beau sur la période de réglage et plus ça s'effondre sur la période de test : signature du sur-apprentissage. La version la plus rapide a le meilleur passé et le pire test.
+- Le 4h « rapide » égale la v1 au mieux, avec 4× plus d'ordres : il perd tout avantage si les frais réels sont un peu plus élevés.
+- Ajouter des memecoins et petits tokens dégrade les résultats partout (plus de bruit, faux départs, krachs).
+- Le régime assoupli est meilleur en test mais nettement pire en réglage (−39 % de repli) : non robuste, non retenu.
+- **Décision : la v1 reste en place.**
+
 ## Sources
 
 - Prix, volumes et historique : API publique Binance (data-api.binance.vision), CoinGecko `/global`, alternative.me Fear & Greed.
