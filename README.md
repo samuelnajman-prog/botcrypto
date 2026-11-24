@@ -5,7 +5,7 @@
 
 **🔴 Page en direct : https://samuelnajman-prog.github.io/botcrypto/**
 
-*Mis à jour automatiquement le 24/11/2026 à 16:08 UTC, bougie du 23/11/2026. Jour 1 du test, argent fictif.*
+*Mis à jour automatiquement le 24/11/2026 à 16:09 UTC, bougie du 23/11/2026. Jour 1 du test, argent fictif.*
 
 | Valeur | Depuis le départ | BTC, même période | Repli actuel | Investi |
 |:---:|:---:|:---:|:---:|:---:|
