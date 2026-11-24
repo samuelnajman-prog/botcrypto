@@ -3,9 +3,58 @@
  "cash": 10000.0,
  "units": {},
  "peak": 10000.0,
- "high_since_entry": {},
- "blocked_until": {},
- "last_run_date": "2026-11-23",
+ "last_run_date": "2026-11-24 16:00",
  "started_at": "2026-11-23T22:36:38+00:00",
- "btc_at_start": 61209.155
+ "btc_at_start": 61209.155,
+ "tranches": {
+  "0": {
+   "cash": 1666.6666666666667,
+   "units": {},
+   "peak": 1666.6666666666667,
+   "high_since_entry": {},
+   "blocked_until": {},
+   "last_bar": "2026-11-23 00:00:00"
+  },
+  "4": {
+   "cash": 1666.6666666666667,
+   "units": {},
+   "peak": 1666.6666666666667,
+   "high_since_entry": {},
+   "blocked_until": {},
+   "last_bar": "2026-11-23 04:00:00"
+  },
+  "8": {
+   "cash": 1666.6666666666667,
+   "units": {},
+   "peak": 1666.6666666666667,
+   "high_since_entry": {},
+   "blocked_until": {},
+   "last_bar": "2026-11-23 08:00:00"
+  },
+  "12": {
+   "cash": 1666.6666666666667,
+   "units": {},
+   "peak": 1666.6666666666667,
+   "high_since_entry": {},
+   "blocked_until": {},
+   "last_bar": "2026-11-23 12:00:00"
+  },
+  "16": {
+   "cash": 1666.6666666666667,
+   "units": {},
+   "peak": 1666.6666666666667,
+   "high_since_entry": {},
+   "blocked_until": {},
+   "last_bar": "2026-11-23 16:00:00"
+  },
+  "20": {
+   "cash": 1666.6666666666667,
+   "units": {},
+   "peak": 1666.6666666666667,
+   "high_since_entry": {},
+   "blocked_until": {},
+   "last_bar": "2026-11-22 20:00:00"
+  }
+ },
+ "version": 2
 }
