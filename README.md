@@ -1,5 +1,43 @@
 # Bot crypto : trend-following multi-actifs (paper trading)
 
+<!-- DASHBOARD:START -->
+## 📊 Suivi du paper trading
+
+*Mis à jour automatiquement le 24/11/2026 à 15:16 UTC, bougie du 23/11/2026. Jour 1 du test, argent fictif.*
+
+| Valeur | Depuis le départ | BTC, même période | Repli actuel | Investi |
+|:---:|:---:|:---:|:---:|:---:|
+| **10 000 $** | **0,0 %** | −1,2 % | 0,0 % | 0 % |
+
+🔴 **Marché baissier (risk-off)** : BTC à 61 271 $, −15,2 % sous sa moyenne 200 jours (72 291 $). Le bot n'investit que sur BTC/ETH, 35 % maximum, et seulement s'ils sont en tendance haussière. Cryptos en tendance haussière aujourd'hui : **0 sur 18**.
+
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/img/perf-dark.svg"><img src="docs/img/perf-light.svg" alt="Performance du bot et de BTC depuis le départ" width="100%"></picture>
+
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/img/regime-dark.svg"><img src="docs/img/regime-light.svg" alt="BTC et sa moyenne 200 jours sur 12 mois" width="100%"></picture>
+
+<details>
+<summary><b>Force de tendance de chaque crypto</b> (achat possible si &gt; 0)</summary>
+
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/img/signals-dark.svg"><img src="docs/img/signals-light.svg" alt="Force de tendance des 20 cryptos les plus liquides" width="100%"></picture>
+
+</details>
+
+### Positions
+Aucune : 100 % en stablecoin (USDT).
+
+### Derniers ordres
+Aucun ordre pour l'instant.
+
+### Seuils d'alerte
+| Indicateur | Actuel | Normal | Alerte |
+|---|---:|---:|---:|
+| ✅ Pire repli depuis le départ | 0,0 % | > −25 % | < −40 % |
+| ✅ Bougies non traitées | 0 | 0 | ≥ 2 |
+| ✅ Nombre d'ordres | 0 | — | — |
+
+Repères du backtest (2018-2026) sur 6 mois : médiane +4 %, 5 % pires cas −16 %, 5 % meilleurs cas +136 %.
+<!-- DASHBOARD:END -->
+
 Bot de trading systématique sur les cryptos du spot Binance : il suit les tendances, ne va jamais à découvert, n'utilise pas de levier et repasse en stablecoin quand le marché est baissier. **Il n'utilise pas d'argent réel** : aucun module d'exécution réelle n'est branché, et aucune clé API n'est nécessaire.
 
 La stratégie complète et ses justifications sont dans [`STRATEGIE.md`](STRATEGIE.md).
