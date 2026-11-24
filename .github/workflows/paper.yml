@@ -1,12 +1,12 @@
 # Paper trading automatique et gratuit via GitHub Actions.
-# - Chaque jour à 00:10 UTC (01:10 à Paris en hiver), juste après la clôture de la bougie journalière.
+# - Toutes les 4 h, 10 min après 00/04/08/12/16/20 h UTC : une tranche (1/6 du capital) décide à chaque fois.
 # - À chaque mise à jour du code du bot (l'exécution est idempotente : une seule fois par bougie).
 # - À la demande depuis l'onglet Actions (bouton "Run workflow").
 # L'état (state/) est commité dans le dépôt : l'historique du paper trading est versionné.
 name: paper-trading
 on:
   schedule:
-    - cron: "10 0 * * *"
+    - cron: "10 */4 * * *"
   workflow_dispatch: {}
   push:
     branches: [main]

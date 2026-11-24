@@ -196,14 +196,15 @@ footer a { color: var(--ink-2); }
     <section class="card" id="trends">
       <p class="label"><span>Force de tendance</span><span>24 h</span></p>
       <div class="bars" id="bars"></div>
-      <p class="note">Note de −2 à +2 calculée à la dernière clôture. Achat possible au-dessus de 0 ; <span style="color:var(--good)">●</span> = achetable aujourd'hui (en marché baissier : BTC et ETH seulement).</p>
+      <p class="note">Note de −2 à +2 calculée à la dernière clôture journalière. Achat possible au-dessus de 0 ; <span style="color:var(--good)">●</span> = achetable aujourd'hui (en marché baissier : BTC et ETH seulement).</p>
     </section>
 
     <section class="card next" id="next">
-      <p class="label"><span>Prochaine décision</span><span>chaque nuit 01:10 Paris</span></p>
+      <p class="label"><span>Prochaine décision</span><span>toutes les 4 h</span></p>
       <div class="count" id="count">—</div>
       <p id="last-run">—</p>
       <ol class="steps">
+        <li>Le capital est coupé en 6 tranches ; chaque décision ne concerne qu'une tranche (1/6).</li>
         <li>Classe les 20 cryptos les plus échangées.</li>
         <li>Note la tendance de chacune, de −2 à +2.</li>
         <li>Vérifie le feu du marché (BTC vs MM200).</li>
@@ -343,7 +344,7 @@ footer a { color: var(--ink-2); }
 
   function renderChart(eq, btc) {
     const box = $("chart"); box.replaceChildren();
-    const pts = D.equity_history.map((h) => ({ t: new Date(h.date + "T00:00:00Z").getTime() + 86400000, bot: h.equity / D.initial - 1, btc: h.btc / D.btc_at_start - 1, live: false }));
+    const pts = D.equity_history.map((h) => ({ t: Date.parse(h.ts), bot: h.equity / D.initial - 1, btc: h.btc / D.btc_at_start - 1, live: false }));
     pts.push({ t: Date.now(), bot: eq / D.initial - 1, btc: btc / D.btc_at_start - 1, live: true });
     pts.sort((a, b) => a.t - b.t);
     const W = Math.max(300, box.clientWidth || 600), H = 220, ml = 46, mr = 92, mt = 12, mb = 26;
@@ -419,11 +420,13 @@ footer a { color: var(--ink-2); }
   }
 
   function tick() {
-    const now = new Date(); const next = new Date(now); next.setUTCHours(0, 10, 0, 0);
-    if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
+    // une décision toutes les 4 h, 10 min après 00/04/08/12/16/20 h UTC
+    const now = new Date(); const next = new Date(now); next.setUTCMinutes(10, 0, 0);
+    next.setUTCHours(Math.floor(now.getUTCHours() / 4) * 4);
+    while (next <= now) next.setUTCHours(next.getUTCHours() + 4);
     const s = Math.floor((next - now) / 1000);
     $("count").textContent = [Math.floor(s / 3600), Math.floor(s / 60) % 60, s % 60].map((n) => String(n).padStart(2, "0")).join(":");
-    if (D) $("last-run").textContent = "Dernière exécution : " + new Date(D.generated_at).toLocaleString("fr-FR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) + " (bougie du " + fdate(D.bar_date) + "). GitHub peut décaler le départ de quelques minutes.";
+    if (D) $("last-run").textContent = "Dernière exécution : " + new Date(D.generated_at).toLocaleString("fr-FR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) + ". Décisions à 01:10, 05:10, 09:10, 13:10, 17:10 et 21:10 (heure de Paris) ; GitHub peut décaler le départ de quelques minutes.";
     const live = $("live"), age = (Date.now() - lastOk) / 1000;
     live.classList.toggle("stale", lastOk && age > 45 && age <= 120);
     live.classList.toggle("down", !lastOk || age > 120);

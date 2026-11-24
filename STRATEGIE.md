@@ -35,7 +35,7 @@ Ce qu'un bot de ce type ne fait pas : prédire le prix. Il réagit aux tendances
 4. **Sélection** : au plus 10 positions, les forecasts les plus forts.
 5. **Taille** : poids ∝ forecast / volatilité, mis à l'échelle pour viser 50 % de volatilité annuelle (covariance 90 jours), réduits si les tendances sont faibles. Plafonds : 30 % par altcoin, 60 % BTC/ETH, 100 % au total.
 6. **Régime** : si BTC < sa moyenne 200 jours → exposition ≤ 35 %, uniquement BTC/ETH.
-7. **Exécution** : décision à la clôture journalière (00:00 UTC), ordre juste après. On ne touche une ligne que si l'écart de poids dépasse 5 points.
+7. **Exécution** : capital coupé en 6 tranches égales. Chaque tranche applique les règles sur sa propre « journée » (clôture à 00, 04, 08, 12, 16 ou 20 h UTC) : une décision toutes les 4 h, chacune sur 1/6 du capital (depuis le 24/11/2026, voir §11). On ne touche une ligne que si l'écart de poids dépasse 5 points.
 8. **Coûts modélisés** : 0,10 % de frais + 0,05 % de slippage par ordre en backtest ; en paper, carnet bid/ask réel + 0,10 % + 0,05 %.
 
 Testés puis **écartés** car non robustes : stop suiveur ATR, frein de drawdown (aidaient dans certaines combinaisons, nuisaient dans d'autres), signaux plus lents (64/256), univers de 10.
@@ -123,6 +123,27 @@ Test : shorts à levier 1x quand la tendance est négative, funding historique r
 | Long/short permanent | 1,54 | 0,69 | +18 % | −29 % | +19 % | −5 % |
 
 Conclusions : les shorts rapportent dans les longues baisses (2022, 2026) mais perdent davantage lors des rebonds brutaux et des marchés sans direction (2020, 2023-2024). Toutes les variantes font moins bien que la v1 sur les deux périodes. **Non retenu.** Le moteur garde l'option (`allow_short`, désactivée).
+
+## 11. Fréquence et heure de décision, testées le 24/11/2026 → passage à 6 tranches
+
+Scripts : `scripts/timing.py`, `scripts/tranches.py`. Même protocole (réglage 2019-09 → 2022-12, test 2023-01 → nov. 2026).
+
+| Variante | Sharpe réglage | Sharpe test | Par an (test) | Pire repli (test) |
+|---|---|---|---|---|
+| 1 décision/jour à 01h Paris (v1) | 1,68 | 0,86 | +25 % | −37 % |
+| 1 décision/jour à 05h Paris | **1,87** | 0,71 | +19 % | −37 % |
+| 1 décision/jour à 09h Paris | 1,67 | 0,88 | +26 % | −34 % |
+| 1 décision/jour à 13h Paris | 1,74 | 0,67 | +17 % | −34 % |
+| 1 décision/jour à 17h Paris | 1,50 | 0,68 | +17 % | −38 % |
+| 1 décision/jour à 21h Paris | 1,65 | 0,65 | +17 % | −37 % |
+| Mêmes règles réévaluées toutes les 4 h (tout le capital) | 1,33 | 0,74 | +19 % | −36 % |
+| **6 tranches, une décision toutes les 4 h** | **2,05** | **0,87** | +20 % | −36 % |
+
+Constats :
+- L'heure de décision change le résultat de ±5 points par an, sans logique : la meilleure heure sur la période de réglage (05h) est parmi les pires en test. C'est de la chance, pas un « meilleur moment ».
+- Réévaluer tout le capital toutes les 4 h dégrade les résultats (plus d'allers-retours).
+- Couper le capital en 6 tranches décalées supprime ce risque de « mauvaise heure » : Sharpe nettement supérieur sur le réglage et égal à la meilleure heure en test, contre 0,74 en moyenne pour une heure unique. Le rendement test (+20 %) est inférieur à celui de 01h, qui a simplement été l'une des heures chanceuses sur 2023-2026.
+- **Décision : 6 tranches.** Le portefeuille paper (100 % cash au moment du changement) a été réparti en 6 parts égales.
 
 ## Sources
 

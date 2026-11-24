@@ -188,3 +188,19 @@ def load_panel(assets=CANDIDATES, refresh: bool = False, verbose: bool = True,
 
 def to_matrix(panel: dict[str, pd.DataFrame], field: str) -> pd.DataFrame:
     return pd.DataFrame({k: v[field] for k, v in panel.items()}).sort_index()
+
+
+def daily_from_intraday(m: dict[str, pd.DataFrame], hour: int, bars_per_day: int = 6) -> dict[str, pd.DataFrame]:
+    """Bougies journalières reconstruites à partir de bougies 4h, la journée se terminant à `hour` h UTC.
+
+    L'index est le DÉBUT de la journée (clôture = index + 24 h). Les journées incomplètes
+    (moins de `bars_per_day` bougies, dont la journée en cours) sont retirées.
+    """
+    agg = {"open": "first", "high": "max", "low": "min", "close": "last", "quote_volume": "sum"}
+    n = m["close"].resample("24h", offset=f"{hour}h", label="left").count()
+    out = {}
+    for f, how in agg.items():
+        r = m[f].resample("24h", offset=f"{hour}h", label="left")
+        out[f] = (r.sum(min_count=1) if how == "sum" else getattr(r, how)()).where(n >= bars_per_day)
+    complete = out["close"].notna().any(axis=1)
+    return {f: v.loc[complete] for f, v in out.items()}

@@ -117,7 +117,7 @@ def chart_perf(eq: pd.DataFrame, theme: str):
     ax.set_ylim(lo - pad, hi + pad)
     ax.yaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: pct(v, dec=0)))
     if (x.iloc[-1] - x.iloc[0]).days <= 10:
-        ax.set_xticks(list(x))
+        ax.xaxis.set_major_locator(mdates.DayLocator())
     else:
         ax.xaxis.set_major_locator(mdates.AutoDateLocator(minticks=3, maxticks=6))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m"))
@@ -178,8 +178,8 @@ def _picture(name: str, alt: str) -> str:
 def build(cfg: Config | None = None) -> str:
     cfg = cfg or Config()
     st = json.loads((STATE / "paper_state.json").read_text())
-    eq = pd.read_csv(STATE / "paper_equity.csv", parse_dates=["bar_date"])
-    eq["date"] = eq["bar_date"] + pd.Timedelta(days=1)   # valorisation juste après la clôture
+    eq = pd.read_csv(STATE / "paper_equity.csv")
+    eq["date"] = pd.to_datetime(eq["ts"], utc=True).dt.tz_localize(None)   # moment de la valorisation
     tr_path = STATE / "paper_trades.csv"
     trades = pd.read_csv(tr_path) if tr_path.exists() else pd.DataFrame()
 
@@ -203,7 +203,7 @@ def build(cfg: Config | None = None) -> str:
     dd_series = eq.equity / eq.equity.cummax() - 1
     dd_now, dd_max = float(dd_series.iloc[-1]), float(dd_series.min())
     days = (pd.Timestamp(t) - pd.Timestamp(st["started_at"][:10])).days + 1
-    gap = (pd.Timestamp(t) - eq.bar_date.max()).days
+    gap = (pd.Timestamp.now("UTC").tz_localize(None) - eq["date"].max()).total_seconds() / 3600
     n_pos = int((fc > 0).sum())
     dist = btc.loc[t] / ma.loc[t] - 1
 
@@ -240,7 +240,7 @@ def build(cfg: Config | None = None) -> str:
 
 **🔴 Page en direct : https://samuelnajman-prog.github.io/botcrypto/**
 
-*Mis à jour automatiquement le {now}, bougie du {fdate(t)}. Jour {days} du test, argent fictif.*
+*Mis à jour automatiquement le {now}. Jour {days} du test, argent fictif. Le bot décide toutes les 4 h, à chaque fois sur 1/6 du capital (6 tranches).*
 
 | Valeur | Depuis le départ | BTC, même période | Repli actuel | Investi |
 |:---:|:---:|:---:|:---:|:---:|
@@ -269,7 +269,7 @@ def build(cfg: Config | None = None) -> str:
 | Indicateur | Actuel | Normal | Alerte |
 |---|---:|---:|---:|
 | {flag(dd_max > -0.40)} Pire repli depuis le départ | {pct(dd_max)} | > −25 % | < −40 % |
-| {flag(gap <= 1)} Bougies non traitées | {gap} | 0 | ≥ 2 |
+| {flag(gap <= 8)} Heures depuis la dernière exécution | {num(gap, 1)} h | < 5 h | > 8 h |
 | {flag(True)} Nombre d'ordres | {len(trades)} | — | — |
 
 Repères du backtest (2018-2026) sur 6 mois : médiane +4 %, 5 % pires cas −16 %, 5 % meilleurs cas +136 %.
@@ -305,7 +305,8 @@ def export_site(st, eq, trades, sig, t, btc, ma, cfg) -> None:
         "btc_at_start": st["btc_at_start"],
         "positions": [{"asset": a, "symbol": a.split("#")[0] + "USDT", "units": u,
                        "last_close": float(sig.close[a].loc[t])} for a, u in st["units"].items()],
-        "equity_history": [{"date": str(r.bar_date.date()), "equity": float(r.equity), "btc": float(r.btc_price),
+        "tranche_hours_utc": [0, 4, 8, 12, 16, 20],
+        "equity_history": [{"ts": r.ts, "equity": float(r.equity), "btc": float(r.btc_price),
                             "exposure": float(r.exposure)} for r in eq.itertuples()],
         "trades": [] if trades.empty else [
             {"bar_date": r.bar_date, "asset": r.asset, "side": r.side, "value": round(abs(float(r.value)), 2),

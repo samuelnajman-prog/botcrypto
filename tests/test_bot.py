@@ -80,7 +80,7 @@ def test_delisted_asset_is_liquidated():
 
 @pytest.mark.network
 def test_paper_buy_then_sell_path(tmp_path, monkeypatch):
-    """Exerce le chemin achat → vente du paper trading avec de vrais prix Binance."""
+    """Exerce achat → vente sur les 6 tranches avec de vrais prix Binance."""
     from bot import paper
     monkeypatch.setattr(paper, "STATE", tmp_path / "s.json")
     monkeypatch.setattr(paper, "TRADES", tmp_path / "t.csv")
@@ -89,16 +89,28 @@ def test_paper_buy_then_sell_path(tmp_path, monkeypatch):
     monkeypatch.setattr(paper, "target_weights", lambda *a, **k: pd.Series({"BTC": 0.30, "ETH": 0.20}))
     paper.run_once(capital=10_000)
     st = paper.load_state()
-    assert set(st["units"]) == {"BTC", "ETH"}
+    assert set(st["units"]) == {"BTC", "ETH"} and len(st["tranches"]) == 6
     assert 4_800 < st["cash"] < 5_100            # ~50 % investi, frais déduits
+    assert "Rien de nouveau" in paper.run_once()  # idempotent
     monkeypatch.setattr(paper, "target_weights", lambda *a, **k: pd.Series({"BTC": 0.10}))
     paper.run_once(force=True)
     st = paper.load_state()
     assert set(st["units"]) == {"BTC"} and st["cash"] > 8_000
     trades = pd.read_csv(tmp_path / "t.csv")
-    assert list(trades.side) == ["BUY", "BUY", "SELL", "SELL"]
+    assert (trades.side == "BUY").sum() == 12 and (trades.side == "SELL").sum() == 12
     eq = pd.read_csv(tmp_path / "e.csv")
     assert 9_900 < eq.equity.iloc[-1] < 10_100   # seuls frais + spread ont coûté
+
+
+def test_migration_v1_to_tranches():
+    from bot import paper
+    v1 = {"initial": 10_000.0, "cash": 7_000.0, "units": {"BTC": 0.06}, "peak": 10_000.0,
+          "high_since_entry": {"BTC": 50_000.0}, "blocked_until": {}, "last_run_date": "2026-11-23",
+          "started_at": "2026-11-23T22:36:38+00:00", "btc_at_start": 61_000.0}
+    st = paper.migrate(v1)
+    paper._aggregate(st)
+    assert len(st["tranches"]) == 6
+    assert st["cash"] == pytest.approx(7_000.0) and st["units"]["BTC"] == pytest.approx(0.06)
 
 
 def test_cache_never_keeps_open_candle(tmp_path, monkeypatch):

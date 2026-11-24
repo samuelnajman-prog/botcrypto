@@ -59,7 +59,7 @@ python -m pytest -q tests     # 6 tests, dont l'absence de biais d'anticipation
 |---|---|
 | `python main.py backtest` | Backtest 2018-06 → aujourd'hui vs BTC buy & hold |
 | `python main.py signals` | Régime de marché, forecasts et poids cibles du jour |
-| `python main.py paper run` | Une exécution de paper trading (idempotente : 1 fois par bougie) |
+| `python main.py paper run` | Une exécution de paper trading : chaque tranche dont la « journée » vient de se clôturer décide (idempotent) |
 | `python main.py paper status` | Valorisation live du portefeuille paper |
 | `python main.py paper reset --capital 10000` | Repart de zéro |
 | `python main.py paper loop` | Tourne en continu, exécution chaque jour à 00:10 UTC |
@@ -68,10 +68,10 @@ python -m pytest -q tests     # 6 tests, dont l'absence de biais d'anticipation
 
 ## Faire tourner le paper trading tout seul
 
-Il faut lancer `python main.py paper run` une fois par jour, juste après 00:00 UTC (01:00 à Paris en hiver). Trois options :
+Il faut lancer `python main.py paper run` toutes les 4 h, quelques minutes après 00/04/08/12/16/20 h UTC. Trois options :
 
-1. **GitHub Actions (recommandé, gratuit, rien à laisser allumé)** : pousser ce dossier dans un dépôt GitHub **privé**. Le workflow `.github/workflows/paper.yml` tourne chaque jour à 00:10 UTC et commit l'état dans `state/`. Lancement manuel possible depuis l'onglet *Actions*.
-2. **Cron sur une machine allumée** : `10 0 * * * cd /chemin/cryptobot && .venv/bin/python main.py paper run >> state/run.log 2>&1`
+1. **GitHub Actions (recommandé, gratuit, rien à laisser allumé)** : pousser ce dossier dans un dépôt GitHub **privé**. Le workflow `.github/workflows/paper.yml` tourne toutes les 4 h et commit l'état dans `state/`. Lancement manuel possible depuis l'onglet *Actions*.
+2. **Cron sur une machine allumée** : `10 */4 * * * cd /chemin/cryptobot && .venv/bin/python main.py paper run >> state/run.log 2>&1`
 3. **Boucle** : `nohup python main.py paper loop &`
 
 Notifications Telegram (optionnel) : définir `TELEGRAM_TOKEN` et `TELEGRAM_CHAT_ID` (variables d'environnement, ou *secrets* du dépôt GitHub). Le bot envoie alors son rapport quotidien.
