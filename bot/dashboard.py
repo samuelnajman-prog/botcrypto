@@ -28,6 +28,7 @@ ROOT = Path(__file__).resolve().parent.parent
 STATE = ROOT / "state"
 IMG = ROOT / "docs" / "img"
 README = ROOT / "README.md"
+SITE = ROOT / "site"
 START, END = "<!-- DASHBOARD:START -->", "<!-- DASHBOARD:END -->"
 
 THEMES = {
@@ -279,4 +280,41 @@ Repères du backtest (2018-2026) sur 6 mois : médiane +4 %, 5 % pires cas −16
         head, _, rest = text.partition("\n")
         text = f"{head}\n\n{block}\n{rest}"
     README.write_text(text)
+    export_site(st, eq, trades, sig, t, btc, ma, cfg)
     return block
+
+
+def export_site(st, eq, trades, sig, t, btc, ma, cfg) -> None:
+    """Données de la page web (site/data.json). Les prix en direct sont récupérés par le navigateur."""
+    el = sig.eligible.loc[t]
+    risk_on = bool(sig.risk_on.loc[t])
+    fc_all = sig.forecast.loc[t][el].dropna().sort_values(ascending=False)
+    fcs = []
+    for a, v in fc_all.items():
+        buyable = bool(v > 0 and (risk_on or a in cfg.core_assets))
+        fcs.append({"asset": a, "symbol": a.split("#")[0] + "USDT", "forecast": round(float(v), 3), "buyable": buyable})
+    data = {
+        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "bar_date": str(pd.Timestamp(t).date()),
+        "started_at": st["started_at"],
+        "initial": st["initial"],
+        "cash": round(st["cash"], 2),
+        "peak": round(st["peak"], 2),
+        "btc_at_start": st["btc_at_start"],
+        "positions": [{"asset": a, "symbol": a.split("#")[0] + "USDT", "units": u,
+                       "last_close": float(sig.close[a].loc[t])} for a, u in st["units"].items()],
+        "equity_history": [{"date": str(r.bar_date.date()), "equity": float(r.equity), "btc": float(r.btc_price),
+                            "exposure": float(r.exposure)} for r in eq.itertuples()],
+        "trades": [] if trades.empty else [
+            {"bar_date": r.bar_date, "asset": r.asset, "side": r.side, "value": round(abs(float(r.value)), 2),
+             "price": float(r.price)} for r in trades.tail(20).iloc[::-1].itertuples()],
+        "regime": {"risk_on": risk_on, "btc_close": float(btc.loc[t]), "ma200": float(ma.loc[t]),
+                   "btc_closes_199": [float(x) for x in btc.loc[:t].tail(cfg.regime_ma - 1)]},
+        "forecasts": fcs,
+        "rules": {"max_positions": cfg.max_positions, "risk_off_gross": cfg.risk_off_gross,
+                  "max_weight": cfg.max_weight, "max_weight_core": cfg.max_weight_core,
+                  "rebalance_threshold": cfg.rebalance_threshold, "target_vol": cfg.target_vol},
+        "backtest": {"m6_median": 0.042, "m6_p5": -0.158, "m6_p95": 1.363, "cagr": 0.339, "maxdd": -0.366},
+    }
+    SITE.mkdir(exist_ok=True)
+    (SITE / "data.json").write_text(json.dumps(data, ensure_ascii=False, indent=1))
