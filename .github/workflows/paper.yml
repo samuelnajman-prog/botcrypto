@@ -1,0 +1,36 @@
+# Paper trading automatique et gratuit via GitHub Actions.
+# Tourne chaque jour à 00:10 UTC, juste après la clôture de la bougie journalière,
+# puis commit l'état (state/) dans le dépôt : l'historique du paper trading est versionné.
+name: paper-trading
+on:
+  schedule:
+    - cron: "10 0 * * *"
+  workflow_dispatch: {}
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/cache@v4
+        with:
+          path: data
+          key: ohlcv-${{ github.run_id }}
+          restore-keys: ohlcv-
+      - run: pip install -r requirements.txt
+      - name: Run paper trading
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python main.py paper run | tee -a state/run.log
+      - name: Commit state
+        run: |
+          git config user.name "paper-bot"
+          git config user.email "paper-bot@users.noreply.github.com"
+          git add state/
+          git commit -m "paper: $(date -u +%F)" || echo "rien à committer"
+          git push
