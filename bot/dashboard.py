@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parent.parent
 STATE = ROOT / "state"
 IMG = ROOT / "docs" / "img"
 README = ROOT / "README.md"
-SITE = ROOT / "site"
+SITE = ROOT / "docs"   # servi par GitHub Pages
 START, END = "<!-- DASHBOARD:START -->", "<!-- DASHBOARD:END -->"
 
 THEMES = {
@@ -237,6 +237,8 @@ def build(cfg: Config | None = None) -> str:
     now = datetime.now(timezone.utc).strftime("%d/%m/%Y à %H:%M UTC")
     block = f"""{START}
 ## 📊 Suivi du paper trading
+
+**🔴 Page en direct : https://samuelnajman-prog.github.io/botcrypto/**
 
 *Mis à jour automatiquement le {now}, bougie du {fdate(t)}. Jour {days} du test, argent fictif.*
 

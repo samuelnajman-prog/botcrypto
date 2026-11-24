@@ -242,10 +242,17 @@ footer a { color: var(--ink-2); }
 
   let D = null, T = {}, lastEquity = null, lastOk = 0;
 
+  // Données du bot : d'abord la dernière version sur GitHub (à jour dès la fin de chaque exécution),
+  // sinon la copie publiée avec la page.
+  const DATA_URLS = ["https://raw.githubusercontent.com/samuelnajman-prog/botcrypto/main/docs/data.json", "data.json"];
   async function loadData() {
-    const r = await fetch("data.json?t=" + Date.now(), { cache: "no-store" });
-    if (!r.ok) throw new Error("data.json " + r.status);
-    D = await r.json();
+    for (const u of DATA_URLS) {
+      try {
+        const r = await fetch(u + "?t=" + Date.now(), { cache: "no-store" });
+        if (r.ok) { D = await r.json(); return; }
+      } catch (e) { /* source suivante */ }
+    }
+    throw new Error("données indisponibles");
   }
 
   async function loadPrices() {
