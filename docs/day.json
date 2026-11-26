@@ -1,11 +1,11 @@
 {
- "generated_at": "2026-11-26T23:08:45+00:00",
+ "generated_at": "2026-11-26T23:12:59+00:00",
  "day": "2026-11-26",
  "initial": 10000.0,
  "cash": 10000.0,
  "peak": 10000.0,
- "started_at": "2026-11-26T23:08:42+00:00",
- "btc_at_start": 60530.23,
+ "started_at": "2026-11-26T23:12:57+00:00",
+ "btc_at_start": 60460.88,
  "stats": {
   "trades": 0,
   "wins": 0,
@@ -40,7 +40,7 @@
    "filled": null,
    "asset": "BTC",
    "symbol": "BTCUSDT",
-   "last_close_5m": 60530.23
+   "last_close_5m": 60460.88
   },
   {
    "open": 1692.65,
@@ -55,7 +55,7 @@
    "filled": null,
    "asset": "ETH",
    "symbol": "ETHUSDT",
-   "last_close_5m": 1692.76
+   "last_close_5m": 1689.18
   },
   {
    "open": 70.47,
@@ -70,7 +70,7 @@
    "filled": null,
    "asset": "SOL",
    "symbol": "SOLUSDT",
-   "last_close_5m": 71.17
+   "last_close_5m": 70.99
   },
   {
    "open": 554.03,
@@ -85,7 +85,7 @@
    "filled": null,
    "asset": "BNB",
    "symbol": "BNBUSDT",
-   "last_close_5m": 554.2
+   "last_close_5m": 553.29
   },
   {
    "open": 0.9378,
@@ -100,7 +100,7 @@
    "filled": null,
    "asset": "XRP",
    "symbol": "XRPUSDT",
-   "last_close_5m": 0.9462
+   "last_close_5m": 0.9436
   },
   {
    "open": 0.05605,
@@ -115,14 +115,14 @@
    "filled": null,
    "asset": "DOGE",
    "symbol": "DOGEUSDT",
-   "last_close_5m": 0.05652
+   "last_close_5m": 0.05633
   }
  ],
  "equity_history": [
   {
-   "ts": "2026-11-26T23:08:45+00:00",
+   "ts": "2026-11-26T23:12:59+00:00",
    "equity": 10000.0,
-   "btc": 60530.23
+   "btc": 60460.88
   }
  ],
  "trades": [],
