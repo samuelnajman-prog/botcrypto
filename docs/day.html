@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0b0d0c">
+<title>Bot n°2 · day trading</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0d0c;
+  --panel: #121514;
+  --panel-2: #171b19;
+  --line: #262b28;
+  --line-2: #333a36;
+  --ink: #eeede8;
+  --ink-2: #b9b8ae;
+  --muted: #7d7c75;
+  --bot: #3987e5;
+  --btc: #d95926;
+  --good: #3fbf6a;
+  --bad: #e66767;
+  --amber: #e8a33d;
+  --serif: "Instrument Serif", "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --r: 14px;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 14px/1.5 var(--mono);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(1200px 500px at 85% -10%, rgba(57,135,229,.10), transparent 60%),
+    radial-gradient(900px 400px at -10% 110%, rgba(217,89,38,.07), transparent 60%),
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: auto, auto, 32px 32px, 32px 32px;
+  background-attachment: fixed;
+}
+body::after { /* grain */
+  content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .06; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+.wrap { max-width: 980px; margin: 0 auto; padding: calc(16px + env(safe-area-inset-top)) 16px 48px; }
+
+/* En-tête */
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; }
+.brand { font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-2); }
+.brand b { color: var(--ink); font-weight: 600; }
+.live { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink-2); border: 1px solid var(--line-2); border-radius: 999px; padding: 5px 10px; background: rgba(18,21,20,.7); white-space: nowrap; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 0 rgba(63,191,106,.6); animation: pulse 2s infinite; }
+.live.stale .dot { background: var(--amber); animation: none; }
+.live.down .dot { background: var(--bad); animation: none; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(63,191,106,.55); } 70% { box-shadow: 0 0 0 9px rgba(63,191,106,0); } 100% { box-shadow: 0 0 0 0 rgba(63,191,106,0); } }
+
+/* Grille */
+.grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+@media (min-width: 820px) { .grid { grid-template-columns: 1.25fr 1fr; } .span2 { grid-column: 1 / -1; } }
+.card { background: linear-gradient(180deg, var(--panel-2), var(--panel)); border: 1px solid var(--line); border-radius: var(--r);
+  padding: 18px; position: relative; overflow: hidden; opacity: 0; transform: translateY(8px); animation: rise .6s cubic-bezier(.2,.7,.2,1) forwards; }
+.card:nth-child(2) { animation-delay: .06s; } .card:nth-child(3) { animation-delay: .12s; } .card:nth-child(4) { animation-delay: .18s; }
+.card:nth-child(5) { animation-delay: .24s; } .card:nth-child(6) { animation-delay: .30s; } .card:nth-child(7) { animation-delay: .36s; }
+@keyframes rise { to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .card { animation: none; opacity: 1; transform: none; } .dot { animation: none; } }
+.label { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; display: flex; justify-content: space-between; gap: 8px; }
+.label span:last-child { letter-spacing: .06em; text-transform: none; }
+
+/* Valeur */
+.hero .value { font-family: var(--serif); font-size: clamp(54px, 15vw, 92px); line-height: .95; letter-spacing: -.01em; margin: 4px 0 10px;
+  font-variant-numeric: tabular-nums; transition: color .6s; }
+.hero .value small { font-size: .42em; color: var(--ink-2); margin-left: 6px; }
+.flash-up { color: var(--good) !important; } .flash-down { color: var(--bad) !important; }
+.vs { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13px; color: var(--ink-2); }
+.vs b { font-weight: 600; }
+.chip { display: inline-flex; align-items: center; gap: 6px; }
+.chip i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+.kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 18px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.kpi { background: var(--panel); padding: 10px 12px; }
+.kpi .k { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.kpi .v { font-size: 17px; font-weight: 500; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.pos { color: var(--good); } .neg { color: var(--bad); }
+
+/* Feu du marché */
+.regime .state { display: flex; align-items: center; gap: 12px; margin: 2px 0 6px; }
+.lamp { width: 18px; height: 18px; border-radius: 50%; flex: none; }
+.lamp.off { background: var(--bad); box-shadow: 0 0 18px rgba(230,103,103,.55); }
+.lamp.on { background: var(--good); box-shadow: 0 0 18px rgba(63,191,106,.55); }
+.regime h2 { font-family: var(--serif); font-weight: 400; font-size: 34px; line-height: 1; margin: 0; }
+.regime .why { color: var(--ink-2); font-size: 13px; margin: 6px 0 16px; }
+.gauge { position: relative; height: 54px; margin: 6px 2px 4px; }
+.track { position: absolute; left: 0; right: 0; top: 22px; height: 10px; border-radius: 6px;
+  background: linear-gradient(90deg, rgba(230,103,103,.75) 0%, rgba(230,103,103,.25) 49.6%, rgba(63,191,106,.25) 50.4%, rgba(63,191,106,.75) 100%); }
+.zero { position: absolute; left: 50%; top: 12px; height: 30px; width: 2px; background: var(--ink); opacity: .7; }
+.zero::after { content: "MM200"; position: absolute; top: -14px; left: 50%; transform: translateX(-50%); font-size: 10px; letter-spacing: .1em; color: var(--ink-2); }
+.needle { position: absolute; top: 14px; width: 0; transition: left 1.2s cubic-bezier(.2,.7,.2,1); }
+.needle::before { content: ""; position: absolute; left: -7px; top: 0; border: 7px solid transparent; border-top: 9px solid var(--ink); }
+.needle span { position: absolute; top: 28px; left: 50%; transform: translateX(-50%); font-size: 11px; white-space: nowrap; color: var(--ink); font-weight: 600; }
+.ticks { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-top: 6px; }
+.regime .rows { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; margin-top: 14px; font-size: 13px; }
+.regime .rows div:nth-child(odd) { color: var(--ink-2); }
+.regime .rows div:nth-child(even) { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Tableaux */
+table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+th { text-align: left; font-weight: 500; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); padding: 0 6px 8px; border-bottom: 1px solid var(--line-2); }
+td { padding: 9px 6px; border-bottom: 1px solid var(--line); }
+th.r, td.r { text-align: right; }
+tr:last-child td { border-bottom: 0; }
+.empty { border: 1px dashed var(--line-2); border-radius: 10px; padding: 18px; text-align: center; color: var(--ink-2); }
+.empty b { display: block; font-family: var(--serif); font-weight: 400; font-size: 26px; color: var(--ink); margin-bottom: 4px; }
+
+/* Graphique */
+.chart { position: relative; }
+.chart svg { display: block; width: 100%; height: auto; }
+.chart text { font-family: var(--mono); font-size: 11px; fill: var(--ink-2); }
+.tip { position: absolute; pointer-events: none; background: #0b0d0c; border: 1px solid var(--line-2); border-radius: 8px; padding: 6px 9px; font-size: 12px; white-space: nowrap; display: none; }
+.legend { display: flex; gap: 16px; font-size: 12px; color: var(--ink-2); margin: -2px 0 8px; }
+
+/* Tendances */
+.bars { display: grid; gap: 7px; }
+.bar { display: grid; grid-template-columns: 58px 1fr 52px 58px; align-items: center; gap: 8px; font-size: 12px; font-variant-numeric: tabular-nums; }
+.bar .name { font-weight: 600; }
+.bar .tr { position: relative; height: 12px; background: rgba(255,255,255,.03); border-radius: 3px; }
+.bar .mid { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--line-2); }
+.bar .fill { position: absolute; top: 0; bottom: 0; border-radius: 3px; transition: width .8s; }
+.bar .fc { text-align: right; color: var(--ink-2); }
+.bar .ch { text-align: right; }
+.bar.buy .name::after { content: " ●"; color: var(--good); font-size: 9px; vertical-align: 2px; }
+.note { font-size: 12px; color: var(--muted); margin-top: 12px; }
+
+/* Compte à rebours */
+.next .count { font-family: var(--serif); font-size: 52px; line-height: 1; font-variant-numeric: tabular-nums; margin: 4px 0 8px; }
+.next p { margin: 0; color: var(--ink-2); font-size: 13px; }
+.steps { margin: 14px 0 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 8px; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 26px 1fr; gap: 8px; font-size: 12.5px; color: var(--ink-2); }
+.steps li::before { content: counter(s, decimal-leading-zero); color: var(--muted); }
+
+footer { margin-top: 22px; font-size: 11.5px; color: var(--muted); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+footer a { color: var(--ink-2); }
+.err { color: var(--amber); }
+
+.nav { display: flex; gap: 8px; margin: -6px 0 16px; flex-wrap: wrap; }
+.nav a { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); text-decoration: none; border: 1px solid var(--line-2); border-radius: 999px; padding: 5px 11px; }
+.nav a.on { color: var(--ink); border-color: var(--ink-2); background: rgba(255,255,255,.04); }
+.orders { display: grid; gap: 10px; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .orders { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 980px) { .orders { grid-template-columns: 1fr 1fr 1fr; } }
+.ord { border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: rgba(0,0,0,.18); }
+.ord .top { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 8px; }
+.ord .sym { font-family: var(--serif); font-size: 30px; line-height: 1; }
+.tag { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--ink-2); white-space: nowrap; }
+.tag.wait { color: var(--amber); border-color: rgba(232,163,61,.5); }
+.tag.in { color: var(--good); border-color: rgba(63,191,106,.5); }
+.tag.off { color: var(--muted); }
+.ord .px { font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.ord .sub { font-size: 12px; color: var(--ink-2); margin-top: 2px; min-height: 18px; }
+.prog { position: relative; height: 8px; border-radius: 5px; background: rgba(255,255,255,.05); margin: 12px 0 6px; overflow: hidden; }
+.prog i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; background: linear-gradient(90deg, rgba(57,135,229,.35), var(--bot)); transition: width .8s; }
+.ord .row { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.closebar { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+.closebar .count { font-family: var(--serif); font-size: 44px; line-height: 1; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><b>Bot·crypto</b> &nbsp;n°2 · day trading</div>
+    <div class="live" id="live" role="status" aria-live="polite"><i class="dot"></i><span id="live-text">connexion…</span></div>
+  </header>
+  <nav class="nav"><a href="./">Bot n°1 · tendance</a><a class="on" href="day.html">Bot n°2 · day trading</a></nav>
+
+  <main class="grid">
+    <section class="card hero">
+      <p class="label"><span>Valeur du portefeuille</span><span id="day"></span></p>
+      <div class="value" id="equity">—</div>
+      <div class="vs">
+        <span>Aujourd'hui <b id="today">—</b></span>
+        <span>Depuis le départ <b id="perf">—</b></span>
+        <span>BTC sur la même période <b id="btcperf">—</b></span>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><div class="k">Investi</div><div class="v" id="expo">—</div></div>
+        <div class="kpi"><div class="k">Trades</div><div class="v" id="ntr">—</div></div>
+        <div class="kpi"><div class="k">Gagnants</div><div class="v" id="win">—</div></div>
+      </div>
+    </section>
+
+    <section class="card next">
+      <p class="label"><span>Revente de toutes les positions</span><span>chaque nuit 01:00 Paris</span></p>
+      <div class="closebar"><div class="count" id="count">—</div><span class="sub" id="close-note"></span></div>
+      <ol class="steps">
+        <li>À 01:00 (Paris), le bot calcule un prix de déclenchement pour 6 cryptos : ouverture + 0,8 × l'amplitude de la veille.</li>
+        <li>Il ne pose l'ordre que si la crypto est en tendance (ouverture au-dessus de sa moyenne 10 jours).</li>
+        <li>Si le prix touche le niveau dans la journée, il achète ; taille ajustée à la volatilité, sans levier.</li>
+        <li>Tout est revendu à la clôture de la journée : aucune position la nuit suivante.</li>
+      </ol>
+    </section>
+
+    <section class="card span2">
+      <p class="label"><span>Ordres du jour</span><span id="ord-note"></span></p>
+      <div class="orders" id="orders"></div>
+    </section>
+
+    <section class="card span2">
+      <p class="label"><span>Valeur depuis le départ</span><span id="chart-note"></span></p>
+      <div class="chart" id="chart"></div>
+    </section>
+
+    <section class="card span2">
+      <p class="label"><span>Derniers ordres exécutés</span><span id="ntrades"></span></p>
+      <div id="trades-body"></div>
+      <p class="note" id="bt-note"></p>
+    </section>
+  </main>
+
+  <footer>
+    <span>Argent fictif · prix Binance en direct (toutes les 15 s) · les achats sont simulés comme des ordres stop posés à 01:00</span>
+    <a href="https://github.com/samuelnajman-prog/botcrypto" rel="noopener">Code et historique sur GitHub</a>
+  </footer>
+</div>
+<script>
+(() => {
+  const DATA_URLS = ["https://raw.githubusercontent.com/samuelnajman-prog/botcrypto/main/docs/day.json", "day.json"];
+  const API = "https://data-api.binance.vision/api/v3/ticker/24hr";
+  const nf = (d = 0) => new Intl.NumberFormat("fr-FR", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const usd = (v, d = 0) => nf(d).format(v) + " $";
+  const pdec = (p) => (p >= 1000 ? 0 : p >= 10 ? 2 : p >= 1 ? 3 : 4);
+  const pct = (v, d = 1, sign = true) => {
+    if (v == null || !isFinite(v)) return "—";
+    const z = Math.abs(v * 100) < Math.pow(10, -d) / 2, s = nf(d).format(Math.abs(v * 100)) + " %";
+    return z || !sign ? (v < 0 && !z ? "−" : "") + s : (v > 0 ? "+" : "−") + s;
+  };
+  const cls = (el, v) => { el.classList.remove("pos", "neg"); if (v > 0.00005) el.classList.add("pos"); else if (v < -0.00005) el.classList.add("neg"); };
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, attrs = {}, text) => { const n = document.createElement(tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (text != null) n.textContent = text; return n; };
+  let D = null, T = {}, lastOk = 0, lastEq = null;
+
+  async function loadData() {
+    for (const u of DATA_URLS) {
+      try { const r = await fetch(u + "?t=" + Date.now(), { cache: "no-store" }); if (r.ok) { D = await r.json(); return; } } catch (e) {}
+    }
+    throw new Error("données indisponibles");
+  }
+  async function loadPrices() {
+    const syms = D.orders.map((o) => o.symbol);
+    const r = await fetch(API + "?symbols=" + encodeURIComponent(JSON.stringify(syms)), { cache: "no-store" });
+    if (!r.ok) return;
+    T = {}; (await r.json()).forEach((t) => (T[t.symbol] = +t.lastPrice)); lastOk = Date.now();
+  }
+  const price = (o) => T[o.symbol] ?? o.last_close_5m;
+
+  function render() {
+    let posVal = 0, costBasis = 0;
+    D.orders.forEach((o) => { if (o.filled) { posVal += o.filled.units * price(o); costBasis += o.filled.units * o.filled.price; } });
+    const eq = D.cash + posVal;
+    const eqOpen = D.equity_history.length ? null : null;
+    const e = $("equity"); e.textContent = "";
+    const parts = nf(2).format(eq).split(",");
+    e.append(parts[0], el("small", {}, "," + parts[1] + " $"));
+    if (lastEq != null && Math.abs(eq - lastEq) > 0.005) { e.classList.add(eq > lastEq ? "flash-up" : "flash-down"); setTimeout(() => e.classList.remove("flash-up", "flash-down"), 900); }
+    lastEq = eq;
+    const openEq = D.cash + costBasis + D.orders.reduce((s, o) => s + (o.filled ? o.filled.fee : 0), 0);
+    const today = eq / openEq - 1; $("today").textContent = pct(today, 2); cls($("today"), today);
+    const perf = eq / D.initial - 1; $("perf").textContent = pct(perf, 2); cls($("perf"), perf);
+    const btc = T["BTCUSDT"], bp = btc && D.btc_at_start ? btc / D.btc_at_start - 1 : null; $("btcperf").textContent = pct(bp, 2); cls($("btcperf"), bp);
+    $("expo").textContent = pct(posVal / eq, 0, false);
+    $("ntr").textContent = D.stats.trades;
+    $("win").textContent = D.stats.trades ? pct(D.stats.wins / D.stats.trades, 0, false) : "—";
+    const days = Math.floor((Date.now() - Date.parse(D.started_at)) / 86400000) + 1;
+    $("day").textContent = "jour " + days + " · départ " + usd(D.initial);
+
+    const box = $("orders"); box.replaceChildren();
+    let nAct = 0, nIn = 0;
+    D.orders.forEach((o) => {
+      const c = el("div", { class: "ord" }), top = el("div", { class: "top" }), p = price(o);
+      let tag;
+      if (o.filled) { tag = el("span", { class: "tag in" }, "Acheté"); nIn++; }
+      else if (o.active) { tag = el("span", { class: "tag wait" }, "En attente"); nAct++; }
+      else tag = el("span", { class: "tag off" }, "Pas d'ordre");
+      top.append(el("span", { class: "sym" }, o.asset), tag); c.append(top);
+      c.append(el("div", { class: "px" }, usd(p, pdec(p))));
+      const sub = el("div", { class: "sub" });
+      if (o.filled) {
+        const r = p / o.filled.price - 1; const s = el("b", {}, pct(r, 2)); cls(s, r);
+        sub.append("Acheté à " + usd(o.filled.price, pdec(o.filled.price)) + " · ", s, " · " + usd(o.notional));
+      } else if (o.active) {
+        sub.textContent = "Achat si ≥ " + usd(o.level, pdec(o.level)) + " · encore " + pct(o.level / p - 1, 1, false);
+      } else sub.textContent = o.reason || "";
+      c.append(sub);
+      if (o.level && o.open) {
+        const prog = el("div", { class: "prog" }), fill = el("i");
+        const f = o.filled ? 1 : Math.max(0, Math.min(1, (p - o.open) / (o.level - o.open)));
+        fill.style.width = (f * 100).toFixed(1) + "%"; if (!o.active) fill.style.opacity = ".35";
+        prog.append(fill); c.append(prog);
+        const row = el("div", { class: "row" });
+        row.append(el("span", {}, "ouverture " + usd(o.open, pdec(o.open))), el("span", {}, "niveau " + usd(o.level, pdec(o.level))));
+        c.append(row);
+      }
+      box.append(c);
+    });
+    $("ord-note").textContent = nIn + " position(s) · " + nAct + " ordre(s) en attente";
+    renderChart(eq);
+    renderTrades();
+  }
+
+  function renderChart(eq) {
+    const box = $("chart"); box.replaceChildren();
+    const pts = D.equity_history.map((h) => ({ t: Date.parse(h.ts), v: h.equity / D.initial - 1 }));
+    pts.push({ t: Date.now(), v: eq / D.initial - 1, live: true });
+    const W = Math.max(300, box.clientWidth || 600), H = 200, ml = 46, mr = 70, mt = 10, mb = 24;
+    let lo = Math.min(...pts.map((p) => p.v), -0.01), hi = Math.max(...pts.map((p) => p.v), 0.01); const pad = (hi - lo) * .15; lo -= pad; hi += pad;
+    const x0 = pts[0].t, x1 = Math.max(pts[pts.length - 1].t, x0 + 3600000);
+    const X = (t) => ml + (t - x0) / (x1 - x0) * (W - ml - mr), Y = (v) => mt + (hi - v) / (hi - lo) * (H - mt - mb);
+    const NS = "http://www.w3.org/2000/svg", s = (tag, a, txt) => { const n = document.createElementNS(NS, tag); for (const k in a) n.setAttribute(k, a[k]); if (txt != null) n.textContent = txt; return n; };
+    const svg = s("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Valeur du bot n°2 depuis le départ" });
+    const step = hi - lo > 0.2 ? 0.05 : hi - lo > 0.06 ? 0.02 : 0.005;
+    for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) {
+      svg.append(s("line", { x1: ml, x2: W - mr, y1: Y(v), y2: Y(v), stroke: Math.abs(v) < 1e-9 ? "#4a524d" : "#222725" }));
+      svg.append(s("text", { x: ml - 8, y: Y(v) + 4, "text-anchor": "end" }, pct(v, step < 0.01 ? 1 : 0)));
+    }
+    svg.append(s("polyline", { points: pts.map((p) => X(p.t) + "," + Y(p.v)).join(" "), fill: "none", stroke: "var(--bot)", "stroke-width": 2.5, "stroke-linejoin": "round" }));
+    const l = pts[pts.length - 1];
+    svg.append(s("circle", { cx: X(l.t), cy: Y(l.v), r: 5, fill: "var(--bot)", stroke: "#121514", "stroke-width": 2 }));
+    svg.append(s("text", { x: X(l.t) + 10, y: Y(l.v) + 4, fill: "#eeede8" }, pct(l.v, 2)));
+    const d0 = new Date(x0), d1 = new Date(x1);
+    svg.append(s("text", { x: ml, y: H - 6 }, d0.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" })));
+    svg.append(s("text", { x: W - mr, y: H - 6, "text-anchor": "end" }, "maintenant"));
+    box.append(svg);
+    $("chart-note").textContent = D.equity_history.length + " relevé(s) horaires";
+  }
+
+  function renderTrades() {
+    const b = $("trades-body"); b.replaceChildren();
+    $("ntrades").textContent = D.trades.length ? D.trades.length + " dernier(s)" : "";
+    if (!D.trades.length) b.append(el("div", { class: "empty" }, "Aucun ordre exécuté pour l'instant. Le bot n'achète que les cryptos en tendance qui cassent leur niveau."));
+    else {
+      const t = el("table"), th = el("thead"), h = el("tr");
+      [["Jour", ""], ["Ordre", ""], ["Crypto", ""], ["Montant", "r"], ["Prix", "r"], ["Détail", ""]].forEach(([k, c]) => h.append(el("th", { class: c }, k)));
+      th.append(h); t.append(th); const tb = el("tbody"); t.append(tb);
+      D.trades.forEach((r) => {
+        const tr = el("tr"), sd = el("td", {}, r.side === "BUY" ? "Achat" : "Vente"); sd.className = r.side === "BUY" ? "pos" : "neg";
+        tr.append(el("td", {}, r.day.slice(8, 10) + "/" + r.day.slice(5, 7)), sd, el("td", {}, r.asset), el("td", { class: "r" }, usd(r.value)),
+          el("td", { class: "r" }, usd(r.price, pdec(r.price))), el("td", {}, r.side === "SELL" ? r.info.replace("clôture, ", "") : ""));
+        tb.append(tr);
+      });
+      b.append(t);
+    }
+    const bt = D.backtest;
+    $("bt-note").textContent = "Repère du test 2023-2026 (frais de contrats perpétuels) : " + pct(bt.oos_cagr, 1) + " par an, pire baisse " + pct(bt.oos_maxdd, 1) + ", environ " + bt.trades_per_year + " trades par an sur les 6 cryptos. Avec des frais au comptant de 0,20 % par ordre, la stratégie ne gagne plus rien.";
+  }
+
+  function tick() {
+    const now = new Date(), nxt = new Date(now); nxt.setUTCHours(24, 0, 0, 0);
+    const s = Math.floor((nxt - now) / 1000);
+    $("count").textContent = [Math.floor(s / 3600), Math.floor(s / 60) % 60, s % 60].map((n) => String(n).padStart(2, "0")).join(":");
+    if (D) $("close-note").textContent = "Dernier passage du bot : " + new Date(D.generated_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) + " (toutes les heures)";
+    const live = $("live"), age = (Date.now() - lastOk) / 1000;
+    live.classList.toggle("stale", lastOk && age > 45 && age <= 120); live.classList.toggle("down", !lastOk || age > 120);
+    $("live-text").textContent = !lastOk ? "hors ligne" : age > 45 ? "prix d'il y a " + Math.round(age) + " s" : "en direct · " + new Date(lastOk).toLocaleTimeString("fr-FR");
+  }
+  async function refresh() { try { await loadPrices(); } catch (e) {} if (D) render(); }
+  async function init() {
+    try { await loadData(); } catch (e) { $("live-text").textContent = "données indisponibles"; return; }
+    await refresh(); setInterval(refresh, 15000);
+    setInterval(async () => { try { await loadData(); render(); } catch (e) {} }, 300000);
+    let rw; addEventListener("resize", () => { clearTimeout(rw); rw = setTimeout(() => D && render(), 200); });
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
+  }
+  setInterval(tick, 1000); tick(); init();
+})();
+</script>
+</body>
+</html>

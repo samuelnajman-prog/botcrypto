@@ -18,7 +18,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: paper-trading
+  group: botcrypto-state      # partagé avec le bot n°2 : un seul commit d'état à la fois
   cancel-in-progress: false
 jobs:
   run:
@@ -58,5 +58,4 @@ jobs:
           git add state/ README.md docs/
           if git diff --cached --quiet; then echo "rien à committer"; exit 0; fi
           git commit -m "paper: $(date -u +%F)"
-          git pull --rebase origin main
-          git push
+          for i in 1 2 3; do git pull --rebase origin main && git push && break; sleep 5; done

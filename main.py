@@ -9,6 +9,7 @@
   python main.py paper reset [--capital 10000]
   python main.py paper loop                 tourne en continu, 1 exécution/jour à 00:10 UTC
   python main.py dashboard                  régénère le tableau de bord du README
+  python main.py day run | status           bot n°2 (day trading), à lancer toutes les heures
 """
 from __future__ import annotations
 
@@ -81,6 +82,11 @@ def cmd_dashboard(_):
     print(build())
 
 
+def cmd_day(a):
+    from daytrade import live
+    print(live.run_once(capital=a.capital) if a.action == "run" else live.status())
+
+
 def main():
     p = argparse.ArgumentParser(description="Bot crypto trend-following (paper trading)")
     sp = p.add_subparsers(dest="cmd", required=True)
@@ -90,6 +96,10 @@ def main():
     b.set_defaults(fn=cmd_backtest)
     sp.add_parser("signals").set_defaults(fn=cmd_signals)
     sp.add_parser("dashboard").set_defaults(fn=cmd_dashboard)
+    dp = sp.add_parser("day")
+    dp.add_argument("action", choices=["run", "status"])
+    dp.add_argument("--capital", type=float, default=10_000.0)
+    dp.set_defaults(fn=cmd_day)
     pp = sp.add_parser("paper")
     pp.add_argument("action", choices=["run", "status", "reset", "loop"])
     pp.add_argument("--capital", type=float, default=10_000.0)

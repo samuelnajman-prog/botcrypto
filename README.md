@@ -44,6 +44,14 @@ Bot de trading systématique sur les cryptos du spot Binance : il suit les tenda
 
 La stratégie complète et ses justifications sont dans [`STRATEGIE.md`](STRATEGIE.md).
 
+## ⚡ Bot n°2 : day trading
+
+Cassure de volatilité intraday sur BTC, ETH, SOL, BNB, XRP et DOGE. Le bot achète si le prix casse ouverture + 0,8 × l'amplitude de la veille (seulement en tendance), et revend tout à la clôture du jour. Paper trading toutes les heures (`.github/workflows/daytrade.yml`), état dans `state/day/`.
+
+- **Page en direct :** https://samuelnajman-prog.github.io/botcrypto/day.html
+- **Stratégie, tests et limites :** [`STRATEGIE_DAYTRADING.md`](STRATEGIE_DAYTRADING.md). Sept stratégies intraday ont été testées ; seule celle-ci survit aux frais, et seulement avec des frais de contrats perpétuels bas.
+- **Commandes :** `python main.py day run` (une exécution), `python main.py day status`, `python scripts/daytrade_research.py` (refaire les tests, après `python scripts/download_5m.py BTCUSDT ETHUSDT SOLUSDT BNBUSDT XRPUSDT DOGEUSDT`).
+
 ## Installation
 
 ```bash

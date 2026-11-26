@@ -144,6 +144,27 @@ tr:last-child td { border-bottom: 0; }
 footer { margin-top: 22px; font-size: 11.5px; color: var(--muted); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
 footer a { color: var(--ink-2); }
 .err { color: var(--amber); }
+
+.nav { display: flex; gap: 8px; margin: -6px 0 16px; flex-wrap: wrap; }
+.nav a { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); text-decoration: none; border: 1px solid var(--line-2); border-radius: 999px; padding: 5px 11px; }
+.nav a.on { color: var(--ink); border-color: var(--ink-2); background: rgba(255,255,255,.04); }
+.orders { display: grid; gap: 10px; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .orders { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 980px) { .orders { grid-template-columns: 1fr 1fr 1fr; } }
+.ord { border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: rgba(0,0,0,.18); }
+.ord .top { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 8px; }
+.ord .sym { font-family: var(--serif); font-size: 30px; line-height: 1; }
+.tag { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--ink-2); white-space: nowrap; }
+.tag.wait { color: var(--amber); border-color: rgba(232,163,61,.5); }
+.tag.in { color: var(--good); border-color: rgba(63,191,106,.5); }
+.tag.off { color: var(--muted); }
+.ord .px { font-size: 20px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.ord .sub { font-size: 12px; color: var(--ink-2); margin-top: 2px; min-height: 18px; }
+.prog { position: relative; height: 8px; border-radius: 5px; background: rgba(255,255,255,.05); margin: 12px 0 6px; overflow: hidden; }
+.prog i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; background: linear-gradient(90deg, rgba(57,135,229,.35), var(--bot)); transition: width .8s; }
+.ord .row { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.closebar { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+.closebar .count { font-family: var(--serif); font-size: 44px; line-height: 1; font-variant-numeric: tabular-nums; }
 </style>
 </head>
 <body>
@@ -152,6 +173,7 @@ footer a { color: var(--ink-2); }
     <div class="brand"><b>Bot·crypto</b> &nbsp;paper trading</div>
     <div class="live" id="live" role="status" aria-live="polite"><i class="dot"></i><span id="live-text">connexion…</span></div>
   </header>
+  <nav class="nav"><a class="on" href="./">Bot n°1 · tendance</a><a href="day.html">Bot n°2 · day trading</a></nav>
 
   <main class="grid">
     <section class="card hero" id="hero">
