@@ -612,7 +612,7 @@
      "status": "ouverte",
      "exit": null,
      "exit_time": null,
-     "last": 17.2549991607666,
+     "last": 17.4,
      "fees": 0.48
     },
     "NU": {
@@ -624,7 +624,7 @@
      "status": "ouverte",
      "exit": null,
      "exit_time": null,
-     "last": 13.149999618530273,
+     "last": 13.12,
      "fees": 0.62
     },
     "PBR": {
@@ -636,7 +636,7 @@
      "status": "ouverte",
      "exit": null,
      "exit_time": null,
-     "last": 16.891799926757812,
+     "last": 17.1477,
      "fees": 0.47
     },
     "UUUU": {
@@ -648,7 +648,7 @@
      "status": "ouverte",
      "exit": null,
      "exit_time": null,
-     "last": 5.489999771118164,
+     "last": 5.72,
      "fees": 1.47
     },
     "AAOI": {
@@ -660,7 +660,7 @@
      "status": "ouverte",
      "exit": null,
      "exit_time": null,
-     "last": 38.89500045776367,
+     "last": 40.8423,
      "fees": 0.35
     },
     "AXTI": {
@@ -672,7 +672,7 @@
      "status": "ouverte",
      "exit": null,
      "exit_time": null,
-     "last": 33.775001525878906,
+     "last": 35.88,
      "fees": 0.35
     },
     "YPF": {
@@ -684,7 +684,7 @@
      "status": "ouverte",
      "exit": null,
      "exit_time": null,
-     "last": 32.79999923706055,
+     "last": 32.7,
      "fees": 0.35
     },
     "LITE": {
@@ -696,7 +696,7 @@
      "status": "ouverte",
      "exit": null,
      "exit_time": null,
-     "last": 502.5849914550781,
+     "last": 512.3001,
      "fees": 0.35
     },
     "VALE": {
@@ -708,7 +708,7 @@
      "status": "ouverte",
      "exit": null,
      "exit_time": null,
-     "last": 10.300600051879883,
+     "last": 10.33,
      "fees": 0.79
     },
     "AEHR": {
@@ -720,7 +720,7 @@
      "status": "ouverte",
      "exit": null,
      "exit_time": null,
-     "last": 41.9900016784668,
+     "last": 43.6,
      "fees": 0.35
     },
     "UEC": {
@@ -732,7 +732,7 @@
      "status": "ouverte",
      "exit": null,
      "exit_time": null,
-     "last": 5.885000228881836,
+     "last": 6.0397,
      "fees": 1.38
     },
     "GLXY": {
@@ -744,7 +744,7 @@
      "status": "ouverte",
      "exit": null,
      "exit_time": null,
-     "last": 11.670000076293945,
+     "last": 11.71,
      "fees": 0.66
     },
     "PURR": {
@@ -756,7 +756,7 @@
      "status": "ouverte",
      "exit": null,
      "exit_time": null,
-     "last": 7.639999866485596,
+     "last": 7.77,
      "fees": 1.04
     },
     "SHAZ": {
@@ -768,7 +768,7 @@
      "status": "ouverte",
      "exit": null,
      "exit_time": null,
-     "last": 17.1299991607666,
+     "last": 17.0,
      "fees": 0.47
     },
     "MRVL": {
@@ -780,7 +780,7 @@
      "status": "ouverte",
      "exit": null,
      "exit_time": null,
-     "last": 136.97000122070312,
+     "last": 139.75,
      "fees": 0.35
     }
    },
@@ -788,5 +788,5 @@
   }
  },
  "history": [],
- "last_run": "2026-11-27T15:33:39+00:00"
+ "last_run": "2026-11-27T20:54:40+00:00"
 }

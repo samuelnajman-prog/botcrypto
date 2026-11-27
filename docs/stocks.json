@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-27T15:33:39+00:00",
+"updated": "2026-11-27T20:54:40+00:00",
 "started_at": "2026-11-27T08:28:08+00:00",
 "config": {
 "capital": 25000.0,
@@ -19,7 +19,7 @@
 },
 "capital": 25000.0,
 "equity": 25000.0,
-"equity_live": 25823.61,
+"equity_live": 25359.18,
 "history": [],
 "today": {
 "day": "2026-11-27",
@@ -35,10 +35,10 @@
 "status": "ouverte",
 "exit": null,
 "exit_time": null,
-"last": 17.2549991607666,
+"last": 17.4,
 "fees": 0.48,
-"pnl": 2.38,
-"ret": 0.00172
+"pnl": -11.54,
+"ret": -0.00666
 },
 {
 "sym": "NU",
@@ -50,10 +50,10 @@
 "status": "ouverte",
 "exit": null,
 "exit_time": null,
-"last": 13.149999618530273,
+"last": 13.12,
 "fees": 0.62,
-"pnl": 32.98,
-"ret": 0.02019
+"pnl": 36.7,
+"ret": 0.02243
 },
 {
 "sym": "PBR",
@@ -65,10 +65,10 @@
 "status": "ouverte",
 "exit": null,
 "exit_time": null,
-"last": 16.891799926757812,
+"last": 17.1477,
 "fees": 0.47,
-"pnl": 75.94,
-"ret": 0.04591
+"pnl": 51.89,
+"ret": 0.03146
 },
 {
 "sym": "UUUU",
@@ -80,10 +80,10 @@
 "status": "ouverte",
 "exit": null,
 "exit_time": null,
-"last": 5.489999771118164,
+"last": 5.72,
 "fees": 1.47,
-"pnl": 53.7,
-"ret": 0.03316
+"pnl": -13.69,
+"ret": -0.00734
 },
 {
 "sym": "AAOI",
@@ -95,10 +95,10 @@
 "status": "ouverte",
 "exit": null,
 "exit_time": null,
-"last": 38.89500045776367,
+"last": 40.8423,
 "fees": 0.35,
-"pnl": 69.87,
-"ret": 0.04218
+"pnl": -9.96,
+"ret": -0.00577
 },
 {
 "sym": "AXTI",
@@ -110,10 +110,10 @@
 "status": "ouverte",
 "exit": null,
 "exit_time": null,
-"last": 33.775001525878906,
+"last": 35.88,
 "fees": 0.35,
-"pnl": 44.27,
-"ret": 0.02679
+"pnl": -56.77,
+"ret": -0.03387
 },
 {
 "sym": "YPF",
@@ -125,10 +125,10 @@
 "status": "ouverte",
 "exit": null,
 "exit_time": null,
-"last": 32.79999923706055,
+"last": 32.7,
 "fees": 0.35,
-"pnl": 45.22,
-"ret": 0.02757
+"pnl": 50.12,
+"ret": 0.03053
 },
 {
 "sym": "LITE",
@@ -140,10 +140,10 @@
 "status": "ouverte",
 "exit": null,
 "exit_time": null,
-"last": 502.5849914550781,
+"last": 512.3001,
 "fees": 0.35,
-"pnl": 35.77,
-"ret": 0.0234
+"pnl": 6.63,
+"ret": 0.00452
 },
 {
 "sym": "VALE",
@@ -155,10 +155,10 @@
 "status": "ouverte",
 "exit": null,
 "exit_time": null,
-"last": 10.300600051879883,
+"last": 10.33,
 "fees": 0.79,
-"pnl": 37.86,
-"ret": 0.02334
+"pnl": 33.25,
+"ret": 0.02056
 },
 {
 "sym": "AEHR",
@@ -170,10 +170,10 @@
 "status": "ouverte",
 "exit": null,
 "exit_time": null,
-"last": 41.9900016784668,
+"last": 43.6,
 "fees": 0.35,
-"pnl": 103.86,
-"ret": 0.06286
+"pnl": 44.29,
+"ret": 0.02693
 },
 {
 "sym": "UEC",
@@ -185,10 +185,10 @@
 "status": "ouverte",
 "exit": null,
 "exit_time": null,
-"last": 5.885000228881836,
+"last": 6.0397,
 "fees": 1.38,
-"pnl": 38.14,
-"ret": 0.02375
+"pnl": -4.55,
+"ret": -0.00191
 },
 {
 "sym": "GLXY",
@@ -200,10 +200,10 @@
 "status": "ouverte",
 "exit": null,
 "exit_time": null,
-"last": 11.670000076293945,
+"last": 11.71,
 "fees": 0.66,
-"pnl": 118.96,
-"ret": 0.07206
+"pnl": 113.68,
+"ret": 0.06888
 },
 {
 "sym": "PURR",
@@ -215,10 +215,10 @@
 "status": "ouverte",
 "exit": null,
 "exit_time": null,
-"last": 7.639999866485596,
+"last": 7.77,
 "fees": 1.04,
-"pnl": 75.42,
-"ret": 0.04591
+"pnl": 48.38,
+"ret": 0.02967
 },
 {
 "sym": "SHAZ",
@@ -230,10 +230,10 @@
 "status": "ouverte",
 "exit": null,
 "exit_time": null,
-"last": 17.1299991607666,
+"last": 17.0,
 "fees": 0.47,
-"pnl": 63.21,
-"ret": 0.03843
+"pnl": 75.3,
+"ret": 0.04573
 },
 {
 "sym": "MRVL",
@@ -245,10 +245,10 @@
 "status": "ouverte",
 "exit": null,
 "exit_time": null,
-"last": 136.97000122070312,
+"last": 139.75,
 "fees": 0.35,
-"pnl": 26.03,
-"ret": 0.01721
+"pnl": -4.55,
+"ret": -0.00274
 }
 ],
 "skipped": [],
@@ -849,7 +849,7 @@
 "selected_at": "2026-11-27T15:33:39+00:00",
 "fetched": 1603
 },
-"pnl": 823.61
+"pnl": 359.18
 },
 "backtest": {
 "samples": {
