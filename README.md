@@ -5,7 +5,7 @@
 
 **🔴 Page en direct : https://samuelnajman-prog.github.io/botcrypto/**
 
-*Mis à jour automatiquement le 27/11/2026 à 07:06 UTC. Jour 4 du test, argent fictif. Le bot décide toutes les 4 h, à chaque fois sur 1/6 du capital (6 tranches).*
+*Mis à jour automatiquement le 27/11/2026 à 08:31 UTC. Jour 4 du test, argent fictif. Le bot décide toutes les 4 h, à chaque fois sur 1/6 du capital (6 tranches).*
 
 | Valeur | Depuis le départ | BTC, même période | Repli actuel | Investi |
 |:---:|:---:|:---:|:---:|:---:|
