@@ -3,7 +3,790 @@
  "started_at": "2026-11-27T08:28:08+00:00",
  "capital": 25000.0,
  "equity": 25000.0,
- "sessions": {},
+ "sessions": {
+  "2026-11-27": {
+   "selection": {
+    "scanned": 1603,
+    "candidates": 270,
+    "picked": [
+     {
+      "sym": "XP",
+      "gap": 0.2106,
+      "prev_close": 14.390000343322754,
+      "dvol20": 158889359,
+      "pre_volume": 0,
+      "themes": [],
+      "news": [
+       {
+        "t": "2026-11-27T13:18+00:00",
+        "title": "XP: 3 Key Takeaways for Long-Term Investors",
+        "link": "https://www.fool.com/earnings/takeaways/2026/11/27/xp-3-key-takeaways-for-long-term-investors/?.tsrc=rss",
+        "tags": []
+       },
+       {
+        "t": "2026-11-27T12:00+00:00",
+        "title": "XP (XP) Stock Jumps 19.5% Premarket Without Company News",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/xp-xp-stock-jumps-19-120021545.html?.tsrc=rss",
+        "tags": []
+       }
+      ]
+     },
+     {
+      "sym": "NU",
+      "gap": 0.1165,
+      "prev_close": 12.359999656677246,
+      "dvol20": 852670495,
+      "pre_volume": 0,
+      "themes": [],
+      "news": [
+       {
+        "t": "2026-11-27T13:15+00:00",
+        "title": "Inter (INTR) Stock Jumps 14.5% Premarket: Latin American Stocks Rally",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/inter-intr-stock-jumps-14-131533340.html?.tsrc=rss",
+        "tags": []
+       },
+       {
+        "t": "2026-11-27T12:00+00:00",
+        "title": "Nu Holdings (NU) Stock Jumps 8.3% Premarket Without Company News",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/nu-holdings-nu-stock-jumps-120019786.html?.tsrc=rss",
+        "tags": []
+       }
+      ]
+     },
+     {
+      "sym": "PBR",
+      "gap": 0.1103,
+      "prev_close": 16.049999237060547,
+      "dvol20": 434294481,
+      "pre_volume": 0,
+      "themes": [],
+      "news": []
+     },
+     {
+      "sym": "UUUU",
+      "gap": 0.1017,
+      "prev_close": 5.210000038146973,
+      "dvol20": 60472284,
+      "pre_volume": 0,
+      "themes": [],
+      "news": []
+     },
+     {
+      "sym": "AAOI",
+      "gap": 0.0964,
+      "prev_close": 37.02000045776367,
+      "dvol20": 768344706,
+      "pre_volume": 0,
+      "themes": [
+       "r\u00e9sultats"
+      ],
+      "news": [
+       {
+        "t": "2026-11-27T04:02+00:00",
+        "title": "Morgan Stanley\u2019s 8 Best Networking & Optical Communications Stocks to Buy for 2027",
+        "link": "https://finance.yahoo.com/technology/articles/morgan-stanley-8-best-networking-040254483.html?.tsrc=rss",
+        "tags": [
+         "r\u00e9sultats"
+        ]
+       }
+      ]
+     },
+     {
+      "sym": "AXTI",
+      "gap": 0.0922,
+      "prev_close": 31.979999542236328,
+      "dvol20": 532553602,
+      "pre_volume": 0,
+      "themes": [
+       "r\u00e9sultats"
+      ],
+      "news": [
+       {
+        "t": "2026-11-27T14:12+00:00",
+        "title": "Bet on 3 Momentum Anomaly Stocks Amid NVIDIA Volte-Face, Tariff Threat",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/bet-3-momentum-anomaly-stocks-141200140.html?.tsrc=rss",
+        "tags": []
+       },
+       {
+        "t": "2026-11-26T20:10+00:00",
+        "title": "3 Great Automation Stocks To Own In November 2026",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/3-great-automation-stocks-own-201029804.html?.tsrc=rss",
+        "tags": [
+         "r\u00e9sultats"
+        ]
+       }
+      ]
+     },
+     {
+      "sym": "YPF",
+      "gap": 0.089,
+      "prev_close": 31.450000762939453,
+      "dvol20": 65465370,
+      "pre_volume": 0,
+      "themes": [
+       "r\u00e9sultats"
+      ],
+      "news": [
+       {
+        "t": "2026-11-27T13:35+00:00",
+        "title": "Down 34.2% in 4 Weeks, Here's Why YPF Sociedad Anonima (YPF) Looks Ripe for a Turnaround",
+        "link": "https://finance.yahoo.com/markets/stocks/articles/down-34-2-4-weeks-133502999.html?.tsrc=rss",
+        "tags": [
+         "r\u00e9sultats"
+        ]
+       }
+      ]
+     },
+     {
+      "sym": "LITE",
+      "gap": 0.0869,
+      "prev_close": 476.5799865722656,
+      "dvol20": 3930926672,
+      "pre_volume": 0,
+      "themes": [
+       "r\u00e9sultats"
+      ],
+      "news": [
+       {
+        "t": "2026-11-27T12:17+00:00",
+        "title": "The Next Phase of AI Spending Could Put This Overlooked Stock in the Spotlight",
+        "link": "https://247wallst.com/investing/2026/11/27/the-next-phase-of-ai-spending-could-put-this-overlooked-stock-in-the-spotlight/?.tsrc=rss",
+        "tags": [
+         "r\u00e9sultats"
+        ]
+       },
+       {
+        "t": "2026-11-27T11:52+00:00",
+        "title": "Why Is Marvell Technology Stock Surging Today?",
+        "link": "https://investorshub.advfn.com/market-news/article/40790/why-is-marvell-technology-stock-surging-today?.tsrc=rss",
+        "tags": [
+         "r\u00e9sultats"
+        ]
+       },
+       {
+        "t": "2026-11-27T04:02+00:00",
+        "title": "Morgan Stanley\u2019s 8 Best Networking & Optical Communications Stocks to Buy for 2027",
+        "link": "https://finance.yahoo.com/technology/articles/morgan-stanley-8-best-networking-040254483.html?.tsrc=rss",
+        "tags": [
+         "r\u00e9sultats"
+        ]
+       }
+      ]
+     },
+     {
+      "sym": "VALE",
+      "gap": 0.0829,
+      "prev_close": 9.8100004196167,
+      "dvol20": 368781883,
+      "pre_volume": 0,
+      "themes": [],
+      "news": []
+     },
+     {
+      "sym": "AEHR",
+      "gap": 0.0837,
+      "prev_close": 41.439998626708984,
+      "dvol20": 168049421,
+      "pre_volume": 0,
+      "themes": [],
+      "news": []
+     },
+     {
+      "sym": "UEC",
+      "gap": 0.0826,
+      "prev_close": 5.690000057220459,
+      "dvol20": 73286477,
+      "pre_volume": 0,
+      "themes": [],
+      "news": []
+     },
+     {
+      "sym": "GLXY",
+      "gap": 0.0813,
+      "prev_close": 11.5600004196167,
+      "dvol20": 138456603,
+      "pre_volume": 0,
+      "themes": [],
+      "news": []
+     },
+     {
+      "sym": "PURR",
+      "gap": 0.0796,
+      "prev_close": 7.409999847412109,
+      "dvol20": 169503361,
+      "pre_volume": 0,
+      "themes": [],
+      "news": []
+     },
+     {
+      "sym": "SHAZ",
+      "gap": 0.0796,
+      "prev_close": 16.709999084472656,
+      "dvol20": 65471748,
+      "pre_volume": 0,
+      "themes": [],
+      "news": []
+     },
+     {
+      "sym": "MRVL",
+      "gap": 0.0762,
+      "prev_close": 130.92999267578125,
+      "dvol20": 5514404617,
+      "pre_volume": 0,
+      "themes": [
+       "r\u00e9sultats"
+      ],
+      "news": [
+       {
+        "t": "2026-11-27T13:47+00:00",
+        "title": "AI Needs More Than Nvidia Chips. This Stock Could Benefit",
+        "link": "https://247wallst.com/investing/2026/11/27/ai-needs-more-than-nvidia-chips-this-stock-could-benefit/?.tsrc=rss",
+        "tags": []
+       },
+       {
+        "t": "2026-11-27T12:49+00:00",
+        "title": "MaxLinear's 3.2T Push: Can it Unlock a New Growth Opportunity?",
+        "link": "https://finance.yahoo.com/technology/articles/maxlinears-3-2t-push-unlock-124900100.html?.tsrc=rss",
+        "tags": []
+       },
+       {
+        "t": "2026-11-27T12:17+00:00",
+        "title": "The Next Phase of AI Spending Could Put This Overlooked Stock in the Spotlight",
+        "link": "https://247wallst.com/investing/2026/11/27/the-next-phase-of-ai-spending-could-put-this-overlooked-stock-in-the-spotlight/?.tsrc=rss",
+        "tags": [
+         "r\u00e9sultats"
+        ]
+       }
+      ]
+     }
+    ],
+    "rejected": [
+     {
+      "sym": "VERA",
+      "gap": 0.14983050847457635,
+      "why": "liquidit\u00e9 42 M$/j < 50 M$"
+     },
+     {
+      "sym": "STNE",
+      "gap": 0.11917101487194603,
+      "why": "liquidit\u00e9 46 M$/j < 50 M$"
+     },
+     {
+      "sym": "HYMC",
+      "gap": 0.08626091180299134,
+      "why": "liquidit\u00e9 47 M$/j < 50 M$"
+     }
+    ],
+    "cands": [
+     [
+      "XP",
+      0.21014
+     ],
+     [
+      "VERA",
+      0.15139
+     ],
+     [
+      "STNE",
+      0.11845
+     ],
+     [
+      "NU",
+      0.1156
+     ],
+     [
+      "PBR",
+      0.11063
+     ],
+     [
+      "UUUU",
+      0.10279
+     ],
+     [
+      "AAOI",
+      0.09792
+     ],
+     [
+      "AXTI",
+      0.09259
+     ],
+     [
+      "YPF",
+      0.09024
+     ],
+     [
+      "LITE",
+      0.08805
+     ],
+     [
+      "HYMC",
+      0.08705
+     ],
+     [
+      "VALE",
+      0.08346
+     ],
+     [
+      "AEHR",
+      0.08295
+     ],
+     [
+      "UEC",
+      0.0826
+     ],
+     [
+      "GLXY",
+      0.08131
+     ],
+     [
+      "PURR",
+      0.08108
+     ],
+     [
+      "SHAZ",
+      0.08024
+     ],
+     [
+      "MRVL",
+      0.07647
+     ],
+     [
+      "ACMR",
+      0.07589
+     ],
+     [
+      "COHR",
+      0.07523
+     ],
+     [
+      "EXK",
+      0.07416
+     ],
+     [
+      "STLD",
+      0.07389
+     ],
+     [
+      "EMBJ",
+      0.07347
+     ],
+     [
+      "SIMO",
+      0.07331
+     ],
+     [
+      "AUGO",
+      0.07313
+     ],
+     [
+      "IREN",
+      0.07279
+     ],
+     [
+      "OUST",
+      0.0705
+     ],
+     [
+      "BE",
+      0.07043
+     ],
+     [
+      "MXL",
+      0.07041
+     ],
+     [
+      "TTMI",
+      0.07
+     ],
+     [
+      "NVTS",
+      0.06922
+     ],
+     [
+      "VICR",
+      0.06892
+     ],
+     [
+      "NBIS",
+      0.06873
+     ],
+     [
+      "FLY",
+      0.06869
+     ],
+     [
+      "BILI",
+      0.06818
+     ],
+     [
+      "ALM",
+      0.06805
+     ],
+     [
+      "MELI",
+      0.06766
+     ],
+     [
+      "SITM",
+      0.06743
+     ],
+     [
+      "LUNR",
+      0.06732
+     ],
+     [
+      "INFQ",
+      0.06729
+     ],
+     [
+      "TSEM",
+      0.06648
+     ],
+     [
+      "FLR",
+      0.0653
+     ],
+     [
+      "FORM",
+      0.06515
+     ],
+     [
+      "WDC",
+      0.06491
+     ],
+     [
+      "STX",
+      0.06468
+     ],
+     [
+      "KNTK",
+      0.06418
+     ],
+     [
+      "SKHY",
+      0.06412
+     ],
+     [
+      "AMPX",
+      0.06409
+     ],
+     [
+      "APLD",
+      0.06391
+     ],
+     [
+      "HL",
+      0.06389
+     ],
+     [
+      "FCEL",
+      0.06372
+     ],
+     [
+      "SBSW",
+      0.06367
+     ],
+     [
+      "XE",
+      0.06362
+     ],
+     [
+      "ONTO",
+      0.06352
+     ],
+     [
+      "UCTT",
+      0.06318
+     ],
+     [
+      "ALAB",
+      0.06279
+     ],
+     [
+      "ICHR",
+      0.06279
+     ],
+     [
+      "ARM",
+      0.0626
+     ],
+     [
+      "WOLF",
+      0.06247
+     ],
+     [
+      "SEI",
+      0.06222
+     ],
+     [
+      "CDE",
+      0.06196
+     ],
+     [
+      "COHU",
+      0.06192
+     ],
+     [
+      "AG",
+      0.06192
+     ],
+     [
+      "CLSK",
+      0.06151
+     ],
+     [
+      "ASST",
+      0.06064
+     ],
+     [
+      "HUT",
+      0.06002
+     ],
+     [
+      "LSCC",
+      0.05994
+     ],
+     [
+      "RMBS",
+      0.05926
+     ],
+     [
+      "EGO",
+      0.05893
+     ],
+     [
+      "PENG",
+      0.0589
+     ],
+     [
+      "CRDO",
+      0.05835
+     ],
+     [
+      "SANM",
+      0.05822
+     ],
+     [
+      "AMKR",
+      0.05781
+     ],
+     [
+      "VIAV",
+      0.05766
+     ],
+     [
+      "INOD",
+      0.05745
+     ],
+     [
+      "EQX",
+      0.05738
+     ],
+     [
+      "LEU",
+      0.05731
+     ],
+     [
+      "WULF",
+      0.05689
+     ],
+     [
+      "NVT",
+      0.05661
+     ],
+     [
+      "KLIC",
+      0.05628
+     ]
+    ],
+    "selected_at": "2026-11-27T15:33:39+00:00",
+    "fetched": 1603
+   },
+   "positions": {
+    "XP": {
+     "shares": 96,
+     "open": 17.290000915527344,
+     "entry": 17.2848,
+     "stop": 19.8775,
+     "gap": 0.2106,
+     "status": "ouverte",
+     "exit": null,
+     "exit_time": null,
+     "last": 17.2549991607666,
+     "fees": 0.48
+    },
+    "NU": {
+     "shares": 124,
+     "open": 13.425000190734863,
+     "entry": 13.421,
+     "stop": 15.4341,
+     "gap": 0.1165,
+     "status": "ouverte",
+     "exit": null,
+     "exit_time": null,
+     "last": 13.149999618530273,
+     "fees": 0.62
+    },
+    "PBR": {
+     "shares": 94,
+     "open": 17.709999084472656,
+     "entry": 17.7047,
+     "stop": 20.3604,
+     "gap": 0.1103,
+     "status": "ouverte",
+     "exit": null,
+     "exit_time": null,
+     "last": 16.891799926757812,
+     "fees": 0.47
+    },
+    "UUUU": {
+     "shares": 293,
+     "open": 5.679999828338623,
+     "entry": 5.6783,
+     "stop": 6.53,
+     "gap": 0.1017,
+     "status": "ouverte",
+     "exit": null,
+     "exit_time": null,
+     "last": 5.489999771118164,
+     "fees": 1.47
+    },
+    "AAOI": {
+     "shares": 41,
+     "open": 40.619998931884766,
+     "entry": 40.6078,
+     "stop": 46.699,
+     "gap": 0.0964,
+     "status": "ouverte",
+     "exit": null,
+     "exit_time": null,
+     "last": 38.89500045776367,
+     "fees": 0.35
+    },
+    "AXTI": {
+     "shares": 48,
+     "open": 34.71500015258789,
+     "entry": 34.7046,
+     "stop": 39.9103,
+     "gap": 0.0922,
+     "status": "ouverte",
+     "exit": null,
+     "exit_time": null,
+     "last": 33.775001525878906,
+     "fees": 0.35
+    },
+    "YPF": {
+     "shares": 49,
+     "open": 33.7400016784668,
+     "entry": 33.7299,
+     "stop": 38.7894,
+     "gap": 0.089,
+     "status": "ouverte",
+     "exit": null,
+     "exit_time": null,
+     "last": 32.79999923706055,
+     "fees": 0.35
+    },
+    "LITE": {
+     "shares": 3,
+     "open": 514.780029296875,
+     "entry": 514.6256,
+     "stop": 591.8194,
+     "gap": 0.0869,
+     "status": "ouverte",
+     "exit": null,
+     "exit_time": null,
+     "last": 502.5849914550781,
+     "fees": 0.35
+    },
+    "VALE": {
+     "shares": 157,
+     "open": 10.550000190734863,
+     "entry": 10.5468,
+     "stop": 12.1289,
+     "gap": 0.0829,
+     "status": "ouverte",
+     "exit": null,
+     "exit_time": null,
+     "last": 10.300600051879883,
+     "fees": 0.79
+    },
+    "AEHR": {
+     "shares": 37,
+     "open": 44.81999969482422,
+     "entry": 44.8066,
+     "stop": 51.5275,
+     "gap": 0.0837,
+     "status": "ouverte",
+     "exit": null,
+     "exit_time": null,
+     "last": 41.9900016784668,
+     "fees": 0.35
+    },
+    "UEC": {
+     "shares": 276,
+     "open": 6.03000020980835,
+     "entry": 6.0282,
+     "stop": 6.9324,
+     "gap": 0.0826,
+     "status": "ouverte",
+     "exit": null,
+     "exit_time": null,
+     "last": 5.885000228881836,
+     "fees": 1.38
+    },
+    "GLXY": {
+     "shares": 132,
+     "open": 12.579999923706055,
+     "entry": 12.5762,
+     "stop": 14.4627,
+     "gap": 0.0813,
+     "status": "ouverte",
+     "exit": null,
+     "exit_time": null,
+     "last": 11.670000076293945,
+     "fees": 0.66
+    },
+    "PURR": {
+     "shares": 208,
+     "open": 8.010000228881836,
+     "entry": 8.0076,
+     "stop": 9.2087,
+     "gap": 0.0796,
+     "status": "ouverte",
+     "exit": null,
+     "exit_time": null,
+     "last": 7.639999866485596,
+     "fees": 1.04
+    },
+    "SHAZ": {
+     "shares": 93,
+     "open": 17.81999969482422,
+     "entry": 17.8147,
+     "stop": 20.4869,
+     "gap": 0.0796,
+     "status": "ouverte",
+     "exit": null,
+     "exit_time": null,
+     "last": 17.1299991607666,
+     "fees": 0.47
+    },
+    "MRVL": {
+     "shares": 11,
+     "open": 139.41000366210938,
+     "entry": 139.3682,
+     "stop": 160.2734,
+     "gap": 0.0762,
+     "status": "ouverte",
+     "exit": null,
+     "exit_time": null,
+     "last": 136.97000122070312,
+     "fees": 0.35
+    }
+   },
+   "skipped": []
+  }
+ },
  "history": [],
- "last_run": "2026-11-27T08:57:04+00:00"
+ "last_run": "2026-11-27T15:33:39+00:00"
 }
