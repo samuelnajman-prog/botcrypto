@@ -25,6 +25,7 @@ from zoneinfo import ZoneInfo
 import pandas as pd
 
 from . import data as D
+from . import learn as LN
 from . import news as N
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -47,6 +48,7 @@ CONFIG = {
     "min_order": 0.35,        # commission minimale par ordre
     "slip": 0.0003,           # glissement par côté
     "news_lookback_h": 20,    # actualité depuis la veille ~13 h
+    "model": False,           # filtre appris (activé seulement si l'apprentissage le prouve utile)
 }
 
 
@@ -142,6 +144,17 @@ def fetch_many(syms, workers: int = 10) -> dict:
     return out
 
 
+def daily_feats(sym: str, day: date) -> dict:
+    """Caractéristiques journalières connues avant l'ouverture de `day` (pour l'apprentissage)."""
+    d = D.yahoo_chart(sym, "1d", "3mo")
+    d.index = d.index.tz_convert(NYZ).date
+    d = d[d.index < day]
+    pc = d["close"]
+    tr = pd.concat([d["high"] - d["low"], (d["high"] - pc.shift()).abs(), (d["low"] - pc.shift()).abs()], axis=1).max(axis=1)
+    return {"price": float(pc.iloc[-1]), "dvol": float((pc * d["volume"]).tail(20).mean()),
+            "atrp": float(tr.tail(14).mean() / pc.iloc[-1]), "pret": float(pc.iloc[-1] / pc.iloc[-2] - 1)}
+
+
 def daily_check(sym: str, day: date) -> tuple[float, float]:
     """(clôture officielle de la veille, volume moyen échangé sur les 20 séances avant `day`)."""
     d = D.yahoo_chart(sym, "1d", "3mo")
@@ -176,7 +189,7 @@ def fees(shares: int) -> float:
 
 
 def select(day: date, data: dict, now: datetime, check_daily=daily_check, get_news=N.headlines,
-           cutoff_min: int | None = None) -> dict:
+           cutoff_min: int | None = None, model_ok=None) -> dict:
     """Scan de 9:25 : uniquement des cours de pré-séance <= 9:25 et la clôture de la veille.
     `cutoff_min` plus tôt : aperçu provisoire avant l'ouverture (même règles)."""
     c = CONFIG
@@ -193,7 +206,7 @@ def select(day: date, data: dict, now: datetime, check_daily=daily_check, get_ne
     picked, rejected = [], []
     cutoff = datetime.combine(day, datetime.min.time(), NYZ) + timedelta(minutes=cut)
     since = cutoff - timedelta(hours=c["news_lookback_h"])
-    for s, gap, pc5, pvol in cands:
+    for k, (s, gap, pc5, pvol) in enumerate(cands):
         if len(picked) >= c["top_n"]:
             break
         try:
@@ -215,8 +228,12 @@ def select(day: date, data: dict, now: datetime, check_daily=daily_check, get_ne
         if excl:
             rejected.append({**row, "why": "annonce de rachat / fusion : pas de reflux attendu"})
             continue
+        if model_ok is not None and not model_ok(s, day, gap, k + 1, len(cands)):
+            rejected.append({**row, "why": "le modèle appris prévoit une perte"})
+            continue
         picked.append(row)
     return {"scanned": len(data), "candidates": len(cands), "picked": picked, "rejected": rejected[:25],
+            "cands": [[s, round(g, 5)] for s, g, _, _ in cands[:80]],
             "selected_at": now.isoformat(timespec="seconds")}
 
 
@@ -288,10 +305,34 @@ def preview(st: dict, now: datetime, syms: list, fetch, check_daily, get_news,
                      "as_of_ny": f"{cut // 60}:{cut % 60:02d}", **sel}
 
 
+def spy_gap(spy: pd.DataFrame, day: date) -> float:
+    pre, _, pc = session_parts(spy, day)
+    return float(pre["close"].iloc[-1] / pc - 1) if len(pre) and math.isfinite(pc) else 0.0
+
+
+def make_model_ok(spyg: float, feats=None):
+    model = LN.load_model()
+    feats = feats or daily_feats
+    if model is None:
+        return None
+
+    def ok(sym, day, gap, rank, ncand):
+        try:
+            f = feats(sym, day)
+        except Exception:  # noqa: BLE001 — sans données, on applique la règle de base
+            return True
+        row = LN.add_features(pd.DataFrame([{"day": "x", "gap": gap, "spyg": spyg, **f}]))
+        row["rank"], row["ncand"] = rank, ncand
+        return bool(LN.predict(model, row)[0] > 0)
+    return ok
+
+
 def run_once(now: datetime | None = None, fetch=fetch_many, check_daily=daily_check,
-             get_news=N.headlines, syms: list | None = None) -> dict:
+             get_news=N.headlines, syms: list | None = None, feats=None) -> dict:
     now = now or datetime.now(timezone.utc)
     st = load_state(now)
+    CONFIG.update(LN.champion_config(st))   # règle courante choisie par l'apprentissage
+    feats = feats or daily_feats
     started = datetime.fromisoformat(st["started_at"])
     syms = syms if syms is not None else universe()
     spy = fetch(["SPY"]).get("SPY")
@@ -309,9 +350,11 @@ def run_once(now: datetime | None = None, fetch=fetch_many, check_daily=daily_ch
             continue  # on attend la première bougie de 9:30
         done = session_done(spy, day, now)
         sess = st["sessions"].setdefault(key, {"selection": None, "positions": {}, "skipped": []})
+        spyg = spy_gap(spy, day)
         if sess["selection"] is None:
             data = fetch(syms)
-            sess["selection"] = select(day, data, now, check_daily, get_news)
+            mok = make_model_ok(spyg, feats) if CONFIG.get("model") else None
+            sess["selection"] = select(day, data, now, check_daily, get_news, model_ok=mok)
             sess["selection"]["fetched"] = len(data)
             open_positions(sess, day, data, st["equity"])
         held = [s for s, p in sess["positions"].items() if p["status"] == "ouverte"]
@@ -325,6 +368,11 @@ def run_once(now: datetime | None = None, fetch=fetch_many, check_daily=daily_ch
                                   "ret": round(total / eq0, 5), "equity": st["equity"],
                                   "stops": sum(p["status"] == "stop" for p in sess["positions"].values())})
             sess["closed"] = True
+            try:   # l'apprentissage ne doit jamais bloquer le trading
+                LN.on_session_close(st, day, sess["selection"], spyg, fetch, feats, session_parts)
+            except Exception as e:  # noqa: BLE001
+                st.setdefault("learn_errors", []).append(f"{key}: {str(e)[:200]}")
+                st["learn_errors"] = st["learn_errors"][-10:]
     # on ne garde le détail que des 30 dernières séances
     for k in sorted(st["sessions"])[:-30]:
         st["sessions"].pop(k)
@@ -356,7 +404,7 @@ def export_site(st: dict, now: datetime) -> None:
     out = {"updated": now.isoformat(timespec="seconds"), "started_at": st["started_at"], "config": CONFIG,
            "capital": st["capital"], "equity": st["equity"], "equity_live": round(st["equity"] + unreal, 2),
            "history": st["history"][-250:], "today": live, "backtest": bt,
-           "preview": st.get("preview")}
+           "preview": st.get("preview"), "learn": LN.summary(st)}
     SITE.write_text(json.dumps(out, indent=0, default=str))
 
 

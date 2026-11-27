@@ -107,6 +107,12 @@ footer { margin-top: 48px; color: var(--muted); font-size: 11.5px; }
   <div class="chart" id="hc"><svg id="hsvg" role="img" aria-label="Courbe du capital du bot actions"></svg><div class="tip" id="htip"></div></div>
   <div class="panel" id="hist" style="margin-top:10px"></div>
 
+  <h2>L'apprentissage <small>champion contre challengers</small></h2>
+  <div class="grid" id="lg"></div>
+  <div class="panel" id="lb" style="margin-top:10px"></div>
+  <div class="panel" id="lj" style="margin-top:10px"></div>
+  <p class="note">Chaque séance, le bot enregistre tous les gaps du jour et calcule ce qu'auraient donné 25 variantes de sa règle (sans argent engagé), puis réentraîne chaque semaine un modèle qui estime le reflux de chaque candidat. Il ne change de règle que sur preuve : au moins 60 séances suivies, 40 séances depuis le dernier changement, une variante nettement meilleure en direct (t ≥ 2), pas moins bonne sur les 2,9 ans d'historique, et une pire baisse pas plus profonde de plus de 5 points.</p>
+
   <h2>Les règles <small>identiques en backtest et en direct</small></h2>
   <div class="rules">
     <div class="card rule"><b>9:25 · le scan</b><p>Actions ordinaires US à plus de 5 $, plus de 50 M$ échangés par jour (moyenne 20 séances). Cours de pré-séance de 9:25 au moins 3 % au-dessus de la clôture de la veille. Lecture de l'actualité Yahoo de chaque candidat : une annonce de rachat ou de fusion l'écarte. On garde les 15 plus gros gaps.</p></div>
@@ -140,7 +146,7 @@ async function getJSON(urls) {
 
 function line(svg, tipEl, pts, fmtY, label) {
   const W = svg.clientWidth || 800, H = 220, P = { l: 74, r: 12, t: 12, b: 24 };
-  if (!pts.length) { svg.innerHTML = `<text x="12" y="30" fill="#7d7c75" font-size="12">${label}</text>`; return; }
+  if (pts.length < 2) { svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.innerHTML = `<text x="16" y="40" fill="#7d7c75" font-size="12">${label}</text>`; return; }
   const ys = pts.map((p) => p[1]); let lo = Math.min(...ys), hi = Math.max(...ys); if (hi - lo < 1e-9) { hi += 0.01; lo -= 0.01; }
   const pad = (hi - lo) * 0.08; lo -= pad; hi += pad;
   const x = (i) => P.l + (pts.length === 1 ? 0.5 : i / (pts.length - 1)) * (W - P.l - P.r);
@@ -164,6 +170,8 @@ function line(svg, tipEl, pts, fmtY, label) {
   };
   svg.onmouseleave = () => { tipEl.style.display = "none"; $(svg.id + "-x")?.setAttribute("visibility", "hidden"); $(svg.id + "-c")?.setAttribute("visibility", "hidden"); };
 }
+
+function card2(k, v, sub) { return `<div class="card"><div class="k">${k}</div><div class="v" style="font-size:22px">${esc(v)}</div><div class="s">${esc(sub)}</div></div>`; }
 
 function nextSession() {
   const ny = new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
@@ -219,10 +227,24 @@ function render(D, RP) {
     : `<div class="empty">Rien d'écarté pour l'instant.</div>`;
 
   const pts = [[D.started_at.slice(0, 10), D.capital], ...H.map((h) => [h.day, h.equity])];
-  line($("hsvg"), $("htip"), pts, (v) => usd(v), "");
+  line($("hsvg"), $("htip"), pts, (v) => usd(v), "La courbe apparaîtra après la première séance soldée.");
   $("hist").innerHTML = H.length ? `<table><thead><tr><th>Séance</th><th class="num">Ventes</th><th class="num">Stops</th><th class="num">Résultat</th><th class="num">Capital</th></tr></thead><tbody>` +
     [...H].reverse().slice(0, 20).map((h) => `<tr><td>${h.day}</td><td class="num">${h.trades}</td><td class="num">${h.stops}</td><td class="num ${cls(h.pnl)}">${usd(h.pnl)} <span class="mut">${pct(h.ret, 2)}</span></td><td class="num">${usd(h.equity)}</td></tr>`).join("") + "</tbody></table>"
     : `<div class="empty">L'historique commencera après la première séance soldée.</div>`;
+
+  const LR = D.learn;
+  const nice = (n) => n.replace(/^N(\d+)_stop(\d+)_gap(\d+)_liq(\d+)/, "$1 titres · stop $2 % · gap ≥ $3 % · > $4 M$").replace("+modèle", " + filtre appris");
+  if (LR) {
+    $("lg").innerHTML = card2("Règle en service", nice(LR.champion), LR.journal.length ? `${pl(LR.journal.length, "changement")} depuis le départ` : "règle de départ") +
+      card2("Séances apprises", String(LR.sessions), LR.sessions >= LR.rules.min_live ? "assez pour décider" : `décision possible après ${LR.rules.min_live}`) +
+      card2("Base de données", (LR.live_rows || 0).toLocaleString("fr-FR"), `gaps enregistrés en direct · ${(LR.model_rows || 0).toLocaleString("fr-FR")} avec l'historique`) +
+      card2("Modèle", LR.last_train ? "entraîné le " + LR.last_train : "pas encore", LR.model_top ? "facteur principal : " + LR.model_top[0][0] : "réentraîné chaque semaine");
+    $("lb").innerHTML = `<table><thead><tr><th>Variante</th><th class="num">En direct (fantôme)</th><th class="num">Historique /an</th><th class="num">Sharpe hist.</th></tr></thead><tbody>` +
+      LR.board.map((b) => `<tr><td>${b.name === LR.champion ? "<b>" + esc(nice(b.name)) + "</b> ★" : esc(nice(b.name))}</td><td class="num ${cls(b.live_ret)}">${b.live_ret == null ? "—" : pct(b.live_ret)}</td><td class="num">${pct(b.hist_cagr, 0)}</td><td class="num">${b.hist_sharpe == null ? "—" : b.hist_sharpe.toFixed(2).replace(".", ",")}</td></tr>`).join("") + "</tbody></table>";
+    $("lj").innerHTML = LR.journal.length ? `<table><thead><tr><th>Séance</th><th>Changement</th><th class="num">Preuve (t)</th></tr></thead><tbody>` +
+      [...LR.journal].reverse().map((j) => `<tr><td>${j.day}</td><td class="wrapcell">${esc(nice(j.from))} → <b>${esc(nice(j.to))}</b></td><td class="num">${j.t_live}</td></tr>`).join("") + "</tbody></table>"
+      : `<div class="empty">Journal des décisions : aucun changement de règle pour l'instant (il faut au moins ${LR.rules.min_live} séances de preuves).</div>`;
+  }
 
   const B = D.backtest || {}, S = B.samples || {};
   const h1 = S.hourly_premarket || {}, rc = S.recent_5m || {}, d10 = S.daily_10y_upper_bound || {}, bs = B.bootstrap_6m || {};

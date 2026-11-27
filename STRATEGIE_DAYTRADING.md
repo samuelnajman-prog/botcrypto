@@ -74,7 +74,28 @@ Choisir les titres sur le **prix d'ouverture officiel** (ce que fait un backtest
 - **Concentration :** dans la version à 10 titres, le 1 % des meilleurs trades fait plus que la totalité du gain. Les résultats dépendent de quelques grosses chutes.
 - **Test « dans le futur » :** le bot tourne en paper trading depuis le 27 novembre 2026 ; c'est le seul test sans aucun regard en arrière possible.
 
-## 7. Risques et limites
+## 7. L'apprentissage continu (depuis le 27/11/2026)
+
+**Ce qui a été testé d'abord (dans l'ordre chronologique, sur 2,9 ans, le bot n'apprenant que du passé) :**
+
+| Méthode d'apprentissage | Sharpe | Pire baisse |
+|---|---|---|
+| Règle fixe (référence) | 1,19 | −23 % |
+| Prendre chaque mois la meilleure des 24 variantes sur les 6 derniers mois | 1,22 | −28 % |
+| Idem, seulement si l'écart est net (t > 2) | 1,02 | −28 % |
+| Modèle appris qui choisit lui-même les 15 titres | 0,94 | −32 % |
+| Règle fixe + filtre appris qui écarte les candidats jugés perdants | 1,28 | −22 % |
+
+**Conclusion : se ré-optimiser souvent n'améliore presque rien et creuse les baisses ; un modèle qui choisit seul fait moins bien.** Le système retenu est donc prudent : « champion contre challengers ».
+
+- Chaque séance soldée, le bot **enregistre tous les gaps ≥ 3 %** (caractéristiques + résultat de la vente), y compris ceux qu'il n'a pas tradés. Cette base grossit chaque jour, alors que Yahoo efface les bougies 5 min après 60 jours : avec le temps, elle permettra de tester ce qui est impossible aujourd'hui (par exemple l'effet des résultats d'entreprise ou d'autres thèmes d'actualité).
+- Il calcule en fantôme, sans argent engagé, le résultat de **25 variantes** : 10/15/20 titres, stop 15 %/25 %, gap ≥ 3 %/5 %, liquidité > 50/100 M$, et la règle actuelle + filtre appris.
+- Il **réentraîne chaque semaine** un modèle (régression ridge sur 10 caractéristiques : taille du gap, volatilité, liquidité, prix, variation de la veille, gap du S&P 500, rang du titre, nombre de gaps du jour…) sur l'historique (34 021 gaps) + les données en direct.
+- **Il ne change de règle que sur preuve :** au moins 60 séances suivies, 40 séances depuis le dernier changement, une variante nettement meilleure en direct (t de Student ≥ 2 sur les écarts quotidiens), pas moins bonne sur l'historique, et une pire baisse pas plus profonde de plus de 5 points. Chaque changement est inscrit au journal, visible sur la page.
+- Donc : **aucun changement possible avant fin février 2027 environ** (60 séances). C'est voulu.
+- Code : `stocks/learn.py` ; données de départ : `scripts/stocks_learn_seed.py` → `stocks/learn_seed/` ; données en direct : `state/stocks/learn/`.
+
+## 8. Risques et limites
 
 1. **Envolées brutales.** Le bot est uniquement vendeur. Un titre peut être suspendu puis rouvrir bien au-delà du stop : la perte peut dépasser 15 % sur une position.
 2. **Emprunt des titres.** Pour vendre à découvert il faut que le courtier prête les actions ; les titres les plus recherchés peuvent être indisponibles ou chers à emprunter. Le test suppose qu'on peut toujours vendre.
@@ -84,13 +105,13 @@ Choisir les titres sur le **prix d'ouverture officiel** (ce que fait un backtest
 6. **Actualité :** le filtre « rachat » est une règle de prudence de trader, non testée (l'historique des titres n'est pas disponible gratuitement) ; il ne peut qu'écarter des ventes. Les dépôts 8-K de la SEC ne sont pas utilisés par le bot.
 7. **Régime récent plus faible :** +2,2 % sur les 40 dernières séances contre +40 %/an en moyenne sur 2,9 ans.
 
-## 8. Passer un jour en réel (non fait)
+## 9. Passer un jour en réel (non fait)
 
 - Courtier avec vente à découvert d'actions US, ordres à l'ouverture et à la clôture, et frais très bas (par exemple une offre facturée à l'action). En dessous d'environ 25 000 $, les commissions minimales par ordre pèsent trop sur des positions de 1 700 $.
 - Commencer avec une fraction du capital et comparer chaque jour aux résultats du paper trading.
 - Fiscalité française : gains imposés au prélèvement forfaitaire unique (31,4 % en 2026), à vérifier avec un conseiller.
 
-## 9. Fonctionnement du bot
+## 10. Fonctionnement du bot
 
 - `stocks/live.py` : à chaque passage, il télécharge les bougies 5 min (pré-séance comprise) et **rejoue la séance** : scan figé sur les cours de 9:25, vente à l'ouverture, stops bougie par bougie, rachat à la clôture. Le résultat ne dépend donc pas de l'heure à laquelle GitHub lance le script, et aucune séance commencée avant le démarrage du bot n'est jouée.
 - `stocks/news.py` : titres Yahoo Finance de chaque candidat, classés par thème.

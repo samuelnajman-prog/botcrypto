@@ -50,6 +50,7 @@ Le bot n°2 ne trade plus de crypto : il fait du day trading sur les **actions a
 
 Repères des tests (frais 0,10 % aller-retour) : **+40 %/an sur 2,9 ans** (déc. 2023 → nov. 2026, bougies 1 h, sélection sur la pré-séance), Sharpe 1,2, pire repli −23 % ; rejeu des 40 dernières séances avec le code du bot : +2,2 %. Les gains disparaissent si les frais dépassent ~0,25 % aller-retour.
 
+- **Apprentissage continu :** chaque séance, le bot enregistre tous les gaps du jour, suit 25 variantes de sa règle en fantôme et réentraîne un modèle chaque semaine ; il ne change de règle que sur preuve statistique (au moins 60 séances, voir `stocks/learn.py`).
 - **Page en direct :** https://samuelnajman-prog.github.io/botcrypto/stocks.html
 - **Stratégie, tests et limites :** [`STRATEGIE_DAYTRADING.md`](STRATEGIE_DAYTRADING.md) — six familles de stratégies testées (cassure d'ouverture « stocks in play », momentum intraday SPY/QQQ, gaps baissiers, gaps haussiers…) ; seule la revente des gaps haussiers d'attention survit.
 - **Commandes :** `python main.py stocks run` (une exécution, à lancer pendant ou après la séance), `python main.py stocks status`, `python main.py stocks universe` (liste des actions liquides). Paper trading toutes les 10 min de l'avant-ouverture à la clôture, avec une liste provisoire avant 9:25 (`.github/workflows/stocks.yml`), état dans `state/stocks/`.

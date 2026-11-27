@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from stocks import live, research as R
+from stocks import learn, live, research as R
 
 NY = ZoneInfo("America/New_York")
 DAY = date(2026, 11, 24)
@@ -42,6 +42,7 @@ def frame(prev_close, pre_path, reg_path, day=DAY, high_spike=None, last_min=955
 def env(tmp_path, monkeypatch):
     monkeypatch.setattr(live, "STATE", tmp_path / "state.json")
     monkeypatch.setattr(live, "SITE", tmp_path / "stocks.json")
+    monkeypatch.setattr(learn, "DIR", tmp_path / "learn")
     started = datetime(2026, 11, 23, 22, 0, tzinfo=timezone.utc)  # après la séance du 23
     live.save_state(live.new_state(started))
     return tmp_path
@@ -73,11 +74,16 @@ def fake_news(sym, since, until):
     return []
 
 
+def fake_feats(sym, day):
+    pc, dv = fake_daily(sym, day)
+    return {"price": pc, "dvol": dv, "atrp": 0.04, "pret": 0.01}
+
+
 def run(now, data=None):
     data = data or make_data()
     fetch = lambda syms: {s: data[s] for s in syms if s in data}  # noqa: E731
     return live.run_once(now=now, fetch=fetch, check_daily=fake_daily, get_news=fake_news,
-                         syms=["AAA", "BBB", "CCC", "DDD"])
+                         syms=["AAA", "BBB", "CCC", "DDD"], feats=fake_feats)
 
 
 def test_selection_uses_only_premarket_until_925(env):
@@ -158,3 +164,29 @@ def test_preview_before_open_does_not_trade(env):
     assert pv["day"] == "2026-11-24" and pv["as_of_ny"] == "9:20"
     assert [r["sym"] for r in pv["picked"]][:1] in (["CCC"], ["AAA"])   # liste provisoire
     assert "2026-11-24" not in st["sessions"] and st["history"] == []   # aucune vente avant 9:30
+
+
+def test_learning_records_candidates_and_shadow_variants(env):
+    run(datetime(2026, 11, 24, 21, 30, tzinfo=timezone.utc))
+    st = live.load_state()
+    C = pd.read_csv(learn.DIR / "candidates.csv")
+    assert set(C["sym"]) >= {"AAA", "CCC"} and "r15" in C       # tous les gaps du jour, même non tradés
+    V = pd.read_csv(learn.DIR / "variants.csv")
+    assert len(V) == 1 and learn.CHAMPION in V and len(V.columns) == len(learn.all_variants()) + 1
+    assert st["learn"]["champion"] == learn.CHAMPION and not st.get("learn_errors")
+
+
+def test_no_promotion_without_proof():
+    days = [f"d{i}" for i in range(80)]
+    rng = np.random.default_rng(0)
+    live_df = pd.DataFrame({learn.CHAMPION: rng.normal(0.001, 0.01, 80), "X": rng.normal(0.0012, 0.01, 80)}, index=days)
+    h = rng.normal(0.001, 0.01, 300)
+    hist = pd.DataFrame({learn.CHAMPION: h, "X": h})                                    # identiques sur l'historique
+    assert learn.decide(learn.CHAMPION, live_df, hist, since_change=50)[1] is None      # écart non significatif
+    live_df["X"] = live_df[learn.CHAMPION] + 0.004 + rng.normal(0, 0.002, 80)          # nettement meilleur
+    champ, entry = learn.decide(learn.CHAMPION, live_df, hist, since_change=50)
+    assert champ == "X" and entry["t_live"] >= 2
+    assert learn.decide(learn.CHAMPION, live_df.iloc[:40], hist, since_change=50)[1] is None   # trop tôt
+    assert learn.decide(learn.CHAMPION, live_df, hist, since_change=10)[1] is None              # délai entre changements
+    hist["X"] = h - 0.002                                                                 # pire sur l'historique
+    assert learn.decide(learn.CHAMPION, live_df, hist, since_change=50)[1] is None
