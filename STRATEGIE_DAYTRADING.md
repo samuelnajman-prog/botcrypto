@@ -96,3 +96,12 @@ Choisir les titres sur le **prix d'ouverture officiel** (ce que fait un backtest
 - `stocks/universe.json` : actions à plus de 30 M$ échangés par jour, rafraîchie tous les 3 jours ; le seuil de 50 M$ est vérifié chaque matin avec les données de la veille.
 - `.github/workflows/stocks.yml` : passages toutes les 30 minutes pendant la séance, puis un passage de clôture ; l'état est dans `state/stocks/state.json`, la page lit `docs/stocks.json`.
 - Recherche : `stocks/research.py`, `scripts/stocks_research.py` (tableaux et courbe de la page), `scripts/stocks_replay.py` (rejeu avec le code du bot) ; tests automatiques : `tests/test_stocks.py`.
+- Page en direct : https://samuelnajman-prog.github.io/botcrypto/stocks.html
+
+## Sources
+
+- [Barber, Lee, Liu & Odean — The cross-section of speculator skill: evidence from day trading](https://faculty.haas.berkeley.edu/odean/papers/day%20traders/Day%20Trading%20Skill%20110523.pdf)
+- [Chague, De-Losso & Giovannetti — Day trading for a living?](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3423101)
+- [Zarattini, Barbon & Aziz — A profitable day trading strategy for the U.S. equity market](https://ideas.repec.org/p/chf/rpseri/rp2498.html)
+- [Federal Register, 17 avril 2026 — approbation de la réforme de la règle 4210 de la FINRA](https://www.federalregister.gov/documents/2026/04/17/2026-07485/self-regulatory-organizations-financial-industry-regulatory-authority-inc-notice-of-filing-of) · [FINRA, avis 26-10](https://www.finra.org/rules-guidance/notices/26-10) · [E*TRADE, 5 juin 2026](https://us.etrade.com/knowledge/library/margin/pattern-day-trading-rule-change)
+- [Reuters via The Standard — Wall Street après la démission de Jensen Huang](https://www.thestandard.com.hk/finance/article/348698/Wall-Street-ends-sharply-lower-on-AI-jitters-ahead-of-Nvidia-results-Anthropic-IPO) · [AP, 17 novembre 2026](https://www.ajc.com/news/2026/11/another-wipeout-hits-wall-street-as-nvidia-and-other-jittery-ai-stocks-swing-lower/) · [Nasdaq.com — agenda Fed, emploi, inflation](https://www.nasdaq.com/articles/stocks-fall-back-nvidia-drags-chip-makers-lower)
