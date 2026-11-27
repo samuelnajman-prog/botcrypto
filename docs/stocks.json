@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-27T08:44:16+00:00",
+"updated": "2026-11-27T08:57:04+00:00",
 "started_at": "2026-11-27T08:28:08+00:00",
 "config": {
 "capital": 25000.0,
@@ -14,7 +14,8 @@
 "per_share": 0.005,
 "min_order": 0.35,
 "slip": 0.0003,
-"news_lookback_h": 20
+"news_lookback_h": 20,
+"model": false
 },
 "capital": 25000.0,
 "equity": 25000.0,
@@ -2946,5 +2947,77 @@
 ]
 ]
 },
-"preview": null
+"preview": null,
+"learn": {
+"champion": "N15_stop15_gap3_liq50",
+"sessions": 0,
+"live_rows": 0,
+"model_rows": null,
+"last_train": null,
+"since_change": 0,
+"rules": {
+"min_live": 60,
+"cooldown": 40,
+"t_live": 2.0,
+"dd_tol": 0.05
+},
+"journal": [],
+"board": [
+{
+"name": "N10_stop25_gap5_liq50",
+"live_ret": null,
+"hist_cagr": 0.7652971622064615,
+"hist_sharpe": 1.604297482135435
+},
+{
+"name": "N20_stop25_gap5_liq50",
+"live_ret": null,
+"hist_cagr": 0.49431352209363144,
+"hist_sharpe": 1.6041402192099223
+},
+{
+"name": "N15_stop25_gap5_liq50",
+"live_ret": null,
+"hist_cagr": 0.5738027612699375,
+"hist_sharpe": 1.5731418585555441
+},
+{
+"name": "N20_stop15_gap5_liq50",
+"live_ret": null,
+"hist_cagr": 0.44680425310355054,
+"hist_sharpe": 1.5310354364480623
+},
+{
+"name": "N15_stop15_gap5_liq50",
+"live_ret": null,
+"hist_cagr": 0.521749954114499,
+"hist_sharpe": 1.5187123673031278
+},
+{
+"name": "N10_stop15_gap5_liq50",
+"live_ret": null,
+"hist_cagr": 0.6459529334978327,
+"hist_sharpe": 1.4838407004340015
+},
+{
+"name": "N10_stop25_gap3_liq50",
+"live_ret": null,
+"hist_cagr": 0.6654737114512672,
+"hist_sharpe": 1.4096240298101983
+},
+{
+"name": "N10_stop25_gap5_liq100",
+"live_ret": null,
+"hist_cagr": 0.5190060939319454,
+"hist_sharpe": 1.3344865789722
+},
+{
+"name": "N15_stop15_gap3_liq50",
+"live_ret": null,
+"hist_cagr": 0.45682580436730325,
+"hist_sharpe": 1.2761852095780628
+}
+],
+"model_top": null
+}
 }
