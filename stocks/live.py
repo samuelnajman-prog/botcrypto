@@ -116,9 +116,10 @@ def bars(sym: str) -> pd.DataFrame:
     return df
 
 
-def session_parts(df: pd.DataFrame, day: date):
+def session_parts(df: pd.DataFrame, day: date, cutoff_min: int | None = None):
+    cut = CONFIG["cutoff_min"] if cutoff_min is None else cutoff_min
     x = df[df["day"] == day]
-    pre = x[(x["mins"] >= 240) & (x["mins"] + 5 <= CONFIG["cutoff_min"])]
+    pre = x[(x["mins"] >= 240) & (x["mins"] + 5 <= cut)]
     reg = x[(x["mins"] >= 570) & (x["mins"] < 960)]
     prev = df[(df["day"] < day) & (df["mins"] >= 570) & (df["mins"] < 960)]
     prev_close = float(prev["close"].iloc[-1]) if len(prev) else math.nan
@@ -174,12 +175,15 @@ def fees(shares: int) -> float:
     return max(CONFIG["min_order"], CONFIG["per_share"] * shares)
 
 
-def select(day: date, data: dict, now: datetime, check_daily=daily_check, get_news=N.headlines) -> dict:
-    """Scan de 9:25 : uniquement des cours de pré-séance <= 9:25 et la clôture de la veille."""
+def select(day: date, data: dict, now: datetime, check_daily=daily_check, get_news=N.headlines,
+           cutoff_min: int | None = None) -> dict:
+    """Scan de 9:25 : uniquement des cours de pré-séance <= 9:25 et la clôture de la veille.
+    `cutoff_min` plus tôt : aperçu provisoire avant l'ouverture (même règles)."""
     c = CONFIG
+    cut = c["cutoff_min"] if cutoff_min is None else cutoff_min
     cands = []
     for s, df in data.items():
-        pre, reg, pc = session_parts(df, day)
+        pre, reg, pc = session_parts(df, day, cut)
         if not len(pre) or not math.isfinite(pc) or pc <= c["min_price"]:
             continue
         gap = float(pre["close"].iloc[-1]) / pc - 1
@@ -187,7 +191,7 @@ def select(day: date, data: dict, now: datetime, check_daily=daily_check, get_ne
             cands.append((s, gap, pc, int(pre["volume"].sum())))
     cands.sort(key=lambda x: -x[1])
     picked, rejected = [], []
-    cutoff = datetime.combine(day, datetime.min.time(), NYZ) + timedelta(minutes=c["cutoff_min"])
+    cutoff = datetime.combine(day, datetime.min.time(), NYZ) + timedelta(minutes=cut)
     since = cutoff - timedelta(hours=c["news_lookback_h"])
     for s, gap, pc5, pvol in cands:
         if len(picked) >= c["top_n"]:
@@ -197,7 +201,7 @@ def select(day: date, data: dict, now: datetime, check_daily=daily_check, get_ne
         except Exception as e:  # noqa: BLE001
             rejected.append({"sym": s, "gap": gap, "why": f"données journalières indisponibles ({str(e)[:40]})"})
             continue
-        gap = float(session_parts(data[s], day)[0]["close"].iloc[-1]) / pc - 1
+        gap = float(session_parts(data[s], day, cut)[0]["close"].iloc[-1]) / pc - 1
         if dv < c["min_dvol"]:
             rejected.append({"sym": s, "gap": gap, "why": f"liquidité {dv / 1e6:.0f} M$/j < 50 M$"})
             continue
@@ -264,6 +268,26 @@ def pnl(p: dict) -> float:
     return p["shares"] * (p["entry"] - px) - p["fees"]
 
 
+def preview(st: dict, now: datetime, syms: list, fetch, check_daily, get_news,
+            every_min: int = 20) -> None:
+    """Avant l'ouverture (8:00-9:30 à New York, en semaine) : liste PROVISOIRE des titres que le
+    scan retiendrait avec les cours de pré-séance du moment. Rafraîchie au plus toutes les
+    `every_min` minutes. La décision réelle reste figée à 9:25."""
+    n = ny(now)
+    m = n.hour * 60 + n.minute
+    if n.weekday() >= 5 or not (480 <= m < 570):
+        return
+    old = st.get("preview")
+    if old and old.get("day") == n.date().isoformat() and \
+            now - datetime.fromisoformat(old["at"]) < timedelta(minutes=every_min):
+        return
+    data = fetch(syms)
+    cut = (m // 5) * 5          # bougies de pré-séance closes au moment du passage
+    sel = select(n.date(), data, now, check_daily, get_news, cutoff_min=cut)
+    st["preview"] = {"day": n.date().isoformat(), "at": now.isoformat(timespec="seconds"),
+                     "as_of_ny": f"{cut // 60}:{cut % 60:02d}", **sel}
+
+
 def run_once(now: datetime | None = None, fetch=fetch_many, check_daily=daily_check,
              get_news=N.headlines, syms: list | None = None) -> dict:
     now = now or datetime.now(timezone.utc)
@@ -273,6 +297,7 @@ def run_once(now: datetime | None = None, fetch=fetch_many, check_daily=daily_ch
     spy = fetch(["SPY"]).get("SPY")
     if spy is None:
         raise RuntimeError("SPY indisponible : rien à faire")
+    preview(st, now, syms, fetch, check_daily, get_news)
     days = sorted({d for d, m in zip(spy["day"], spy["mins"]) if 570 <= m < 960})
     for day in days:
         key = day.isoformat()
@@ -330,7 +355,8 @@ def export_site(st: dict, now: datetime) -> None:
         bt = {k: b.get(k) for k in ("samples", "years", "years_10y", "costs", "bootstrap_6m", "curve")}
     out = {"updated": now.isoformat(timespec="seconds"), "started_at": st["started_at"], "config": CONFIG,
            "capital": st["capital"], "equity": st["equity"], "equity_live": round(st["equity"] + unreal, 2),
-           "history": st["history"][-250:], "today": live, "backtest": bt}
+           "history": st["history"][-250:], "today": live, "backtest": bt,
+           "preview": st.get("preview")}
     SITE.write_text(json.dumps(out, indent=0, default=str))
 
 

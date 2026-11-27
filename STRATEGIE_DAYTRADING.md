@@ -51,6 +51,7 @@ Constat : sur les données de 2026, la cassure d'ouverture très médiatisée ne
 Pourquoi ces réglages :
 - **15 titres plutôt que 10 :** même rendement à risque égal sur 2,9 ans, mais pire repli −23 % au lieu de −31 %, et la seule version encore positive sur les 40 dernières séances avec un stop.
 - **Stop à +15 % :** sans stop, le rendement est un peu meilleur, mais une action a pris +239 % dans la journée dans notre échantillon : sans stop, une seule position pourrait coûter 16 % du capital. Les stops plus serrés (1 à 3 ATR, 10 %) coupent trop de positions qui refluent ensuite.
+- **Décisions supplémentaires en cours de journée (testé le 27/11) :** vendre ou acheter, à 10:30, 11:30, 12:30 ou 13:30, les titres qui montent de plus de 5 % ou 8 % dans la séance. Sur 2,9 ans, les ventes perdent de −8 à −25 points de base par trade et les achats ne gagnent presque rien ; sur les 40 dernières séances, c'est l'inverse (les ventes gagnent, les achats perdent lourdement). Un effet qui change de signe selon la période n'est pas fiable : **une seule décision par jour**, mais un suivi toutes les 10 minutes.
 - **Écartés après test :** limite de perte journalière du portefeuille (−2 % à −5 %), ciblage de volatilité, taille selon la volatilité de chaque titre, couverture par achat de SPY, filtre « gap < 2 ATR » (aide sur 10 ans, nuit sur 2,9 ans et 60 séances), confirmation après 5 min, sortie avant la clôture. Aucun n'améliore le résultat de façon cohérente.
 
 ## 6. Les tests
@@ -94,7 +95,7 @@ Choisir les titres sur le **prix d'ouverture officiel** (ce que fait un backtest
 - `stocks/live.py` : à chaque passage, il télécharge les bougies 5 min (pré-séance comprise) et **rejoue la séance** : scan figé sur les cours de 9:25, vente à l'ouverture, stops bougie par bougie, rachat à la clôture. Le résultat ne dépend donc pas de l'heure à laquelle GitHub lance le script, et aucune séance commencée avant le démarrage du bot n'est jouée.
 - `stocks/news.py` : titres Yahoo Finance de chaque candidat, classés par thème.
 - `stocks/universe.json` : actions à plus de 30 M$ échangés par jour, rafraîchie tous les 3 jours ; le seuil de 50 M$ est vérifié chaque matin avec les données de la veille.
-- `.github/workflows/stocks.yml` : passages toutes les 30 minutes pendant la séance, puis un passage de clôture ; l'état est dans `state/stocks/state.json`, la page lit `docs/stocks.json`.
+- `.github/workflows/stocks.yml` : passages toutes les 10 minutes de 8:00 (New York) à la clôture, puis un passage final ; avant l'ouverture, une **liste provisoire** (mêmes règles, cours de pré-séance du moment, actualité) est affichée et rafraîchie toutes les 20 minutes, la décision restant figée à 9:25 ; l'état est dans `state/stocks/state.json`, la page lit `docs/stocks.json`.
 - Recherche : `stocks/research.py`, `scripts/stocks_research.py` (tableaux et courbe de la page), `scripts/stocks_replay.py` (rejeu avec le code du bot) ; tests automatiques : `tests/test_stocks.py`.
 - Page en direct : https://samuelnajman-prog.github.io/botcrypto/stocks.html
 

@@ -52,7 +52,7 @@ Repères des tests (frais 0,10 % aller-retour) : **+40 %/an sur 2,9 ans** (déc.
 
 - **Page en direct :** https://samuelnajman-prog.github.io/botcrypto/stocks.html
 - **Stratégie, tests et limites :** [`STRATEGIE_DAYTRADING.md`](STRATEGIE_DAYTRADING.md) — six familles de stratégies testées (cassure d'ouverture « stocks in play », momentum intraday SPY/QQQ, gaps baissiers, gaps haussiers…) ; seule la revente des gaps haussiers d'attention survit.
-- **Commandes :** `python main.py stocks run` (une exécution, à lancer pendant ou après la séance), `python main.py stocks status`, `python main.py stocks universe` (liste des actions liquides). Paper trading toutes les 30 min en séance (`.github/workflows/stocks.yml`), état dans `state/stocks/`.
+- **Commandes :** `python main.py stocks run` (une exécution, à lancer pendant ou après la séance), `python main.py stocks status`, `python main.py stocks universe` (liste des actions liquides). Paper trading toutes les 10 min de l'avant-ouverture à la clôture, avec une liste provisoire avant 9:25 (`.github/workflows/stocks.yml`), état dans `state/stocks/`.
 - **Refaire les tests :** voir l'en-tête de `stocks/data.py` (données Yahoo, ~1 Go à télécharger, ~2 Go avec les caches), puis `python scripts/stocks_research.py` et `python scripts/stocks_replay.py` (nécessite `pip install pyarrow`).
 
 ## Installation

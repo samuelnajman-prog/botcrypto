@@ -91,6 +91,12 @@ footer { margin-top: 48px; color: var(--muted); font-size: 11.5px; }
     <div class="card"><div class="k">Prochaine séance</div><div class="v" id="nx">—</div><div class="s" id="nxs">—</div></div>
   </div>
 
+  <div id="pvwrap" style="display:none">
+    <h2>Avant l'ouverture <small id="pvl"></small></h2>
+    <div class="panel" id="pv"></div>
+    <p class="note">Liste provisoire, recalculée toutes les 20 minutes avec les cours de pré-séance du moment. La décision définitive est prise sur les cours de 9:25 (15:25 à Paris), puis la vente se fait au prix d'ouverture.</p>
+  </div>
+
   <h2>Positions du jour <small id="dayl"></small></h2>
   <div class="panel" id="pos"></div>
 
@@ -114,7 +120,7 @@ footer { margin-top: 48px; color: var(--muted); font-size: 11.5px; }
   <p class="note" id="btn"></p>
   <div class="warnbox" id="warn"></div>
 
-  <footer>Données Yahoo Finance (non officielles, différées). Mise à jour par GitHub Actions toutes les 30 minutes pendant la séance. Ce n'est pas un conseil en investissement.</footer>
+  <footer>Données Yahoo Finance (non officielles, différées). Mise à jour par GitHub Actions toutes les 10 minutes de 14:00 à 22:00 (Paris), avant-ouverture comprise ; les stops sont rejoués bougie de 5 min par bougie de 5 min. Ce n'est pas un conseil en investissement.</footer>
 </div>
 <script>
 const URLS = ["https://raw.githubusercontent.com/samuelnajman-prog/botcrypto/main/docs/stocks.json", "stocks.json"];
@@ -184,6 +190,17 @@ function render(D, RP) {
   const wins = H.filter((h) => h.pnl > 0).length;
   $("nss").textContent = H.length ? `${pl(wins, "gagnante")} · ${pl(H.length - wins, "perdante")}` : "première séance à venir";
   $("nx").textContent = nextSession(); $("nxs").textContent = "scan 15:25 · vente 15:30 · rachat 22:00, ou 19:00 les demi-séances (Paris)";
+
+  const PV = D.preview;
+  const nyToday = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+  if (PV && PV.day === nyToday && !(T && T.day === nyToday)) {
+    $("pvwrap").style.display = "block";
+    $("pvl").textContent = `cours de ${PV.as_of_ny} à New York · ${pl(PV.candidates, "gap")} ≥ 3 % parmi ${PV.scanned} actions`;
+    $("pv").innerHTML = PV.picked.length ? `<table><thead><tr><th>Action</th><th class="num">Gap</th><th class="num">Volume/jour</th><th>Actualité</th></tr></thead><tbody>` +
+      PV.picked.map((x) => `<tr><td><b>${esc(x.sym)}</b></td><td class="num">${pct(x.gap)}</td><td class="num">${Math.round(x.dvol20 / 1e6)} M$</td><td class="wrapcell">${(x.themes || []).map((t) => `<span class="tag">${esc(t)}</span>`).join("")}${x.news && x.news[0] ? `<a href="${esc(x.news[0].link)}" target="_blank" rel="noopener">${esc(x.news[0].title)}</a>` : '<span class="mut">pas de titre récent</span>'}</td></tr>`).join("") +
+      (PV.rejected || []).slice(0, 5).map((x) => `<tr><td class="mut">${esc(x.sym)}</td><td class="num mut">${x.gap != null ? pct(x.gap) : "—"}</td><td></td><td><span class="tag warn">${esc(x.why)}</span></td></tr>`).join("") + "</tbody></table>"
+      : `<div class="empty">Aucun gap éligible pour l'instant.</div>`;
+  } else { $("pvwrap").style.display = "none"; }
 
   const P = T ? T.positions : [];
   const sel = T && T.selection ? Object.fromEntries(T.selection.picked.map((p) => [p.sym, p])) : {};

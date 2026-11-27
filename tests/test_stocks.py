@@ -146,3 +146,15 @@ def test_research_gap_trades_stop_is_exact():
     g = R.GapParams(min_gap=0.03, stop=0.15)
     tr = R.gap_trades(P, g, slip=0.0)
     assert len(tr) == 1 and tr.why.iloc[0] == "stop" and tr.exit.iloc[0] == pytest.approx(11.5)
+
+
+def test_preview_before_open_does_not_trade(env):
+    data = make_data()
+    fetch = lambda syms: {s: data[s] for s in syms if s in data}  # noqa: E731
+    now = datetime(2026, 11, 24, 14, 22, tzinfo=timezone.utc)      # 9:22 New York
+    st = live.run_once(now=now, fetch=fetch, check_daily=fake_daily, get_news=fake_news,
+                       syms=["AAA", "BBB", "CCC", "DDD"])
+    pv = st["preview"]
+    assert pv["day"] == "2026-11-24" and pv["as_of_ny"] == "9:20"
+    assert [r["sym"] for r in pv["picked"]][:1] in (["CCC"], ["AAA"])   # liste provisoire
+    assert "2026-11-24" not in st["sessions"] and st["history"] == []   # aucune vente avant 9:30

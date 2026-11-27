@@ -1,10 +1,10 @@
-# Bot n°2 — day trading actions US (paper). Passages toutes les 30 min pendant la séance de
+# Bot n°2 — day trading actions US (paper). Passages toutes les 10 min (GitHub en saute parfois) de 8:00 à la clôture de
 # New York (heure d'été et d'hiver couvertes) et un passage de clôture.
 # Le bot rejoue tout depuis les bougies 5 min : un passage manqué ou en retard ne change rien.
 name: stocks
 on:
   schedule:
-    - cron: "5,35 13-21 * * 1-5"
+    - cron: "*/10 12-21 * * 1-5"   # toutes les 10 min, de l'avant-ouverture à la clôture
     - cron: "20 22 * * 1-5"
   workflow_dispatch: {}
   push:
