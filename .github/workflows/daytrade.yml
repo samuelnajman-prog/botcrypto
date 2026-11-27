@@ -4,7 +4,7 @@
 name: daytrade
 on:
   schedule:
-    - cron: "7 * * * *"
+    - cron: "7,37 * * * *"    # deux créneaux par heure : GitHub en saute souvent
   workflow_dispatch: {}
   push:
     branches: [main]

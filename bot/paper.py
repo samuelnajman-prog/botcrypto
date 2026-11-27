@@ -37,6 +37,7 @@ EQUITY = STATE_DIR / "paper_equity.csv"
 FEE = 0.0010         # frais spot taker standard
 EXTRA_SLIP = 0.0005  # slippage additionnel au-delà du bid/ask
 TRANCHE_HOURS = (0, 4, 8, 12, 16, 20)   # heure UTC de fin de « journée » de chaque tranche
+HALF_SPREAD = 0.0002                     # demi-écart bid/ask appliqué au prix d'exécution historique
 
 
 def symbol_of(asset: str) -> str:
@@ -107,6 +108,22 @@ def book(symbols: list[str]) -> dict[str, tuple[float, float]]:
     return {j["symbol"]: (float(j["bidPrice"]), float(j["askPrice"])) for j in r.json()}
 
 
+def exec_prices(assets, ts: pd.Timestamp, fallback_mid: pd.Series) -> pd.Series:
+    """Prix d'exécution d'une décision : ouverture de la bougie 5 min qui commence à `ts`
+    (le moment prévu de la décision), quelle que soit l'heure réelle à laquelle le bot tourne.
+    Repli sur le prix actuel si la bougie n'existe pas encore."""
+    out = {}
+    ms = int(pd.Timestamp(ts).timestamp() * 1000)
+    for a in assets:
+        try:
+            r = _get(f"{API}/klines", {"symbol": symbol_of(a), "interval": "5m", "startTime": ms, "limit": 1})
+            k = r.json() if r.status_code == 200 else []
+            out[a] = float(k[0][1]) if k and int(k[0][0]) == ms else float(fallback_mid.get(a, np.nan))
+        except Exception:
+            out[a] = float(fallback_mid.get(a, np.nan))
+    return pd.Series(out, dtype=float)
+
+
 def notify(text: str) -> None:
     """Notification Telegram optionnelle (variables TELEGRAM_TOKEN et TELEGRAM_CHAT_ID)."""
     tok, chat = os.environ.get("TELEGRAM_TOKEN"), os.environ.get("TELEGRAM_CHAT_ID")
@@ -130,13 +147,17 @@ def _append_csv(path: Path, header: list[str], rows: list[list]) -> None:
 
 
 def _run_tranche(h: int, tr: dict, m: dict, t: pd.Timestamp, cfg: Config,
-                 bid: pd.Series, ask: pd.Series, mid: pd.Series, now: str) -> tuple[list, object, pd.Series]:
-    """Une décision journalière pour une tranche. Retourne (ordres, signaux, poids cibles)."""
+                 live_mid: pd.Series, now: str) -> tuple[list, object, pd.Series]:
+    """Une décision journalière pour une tranche, exécutée au prix du moment prévu (fin de sa journée).
+    Retourne (ordres, signaux, poids cibles)."""
     sig = prepare(m, cfg)
     cols = m["close"].columns
     close_t = m["close"].loc[t]
     units = pd.Series({a: float(tr["units"].get(a, 0.0)) for a in cols})
-    bar = str(t + pd.Timedelta(hours=24))[:16]   # fin de la journée de la tranche
+    t_exec = t + pd.Timedelta(hours=24)
+    bar = str(t_exec)[:16]   # fin de la journée de la tranche
+    held = [a for a in cols if units[a] > 0]
+    mid = exec_prices(held, t_exec, live_mid).reindex(cols)
     tag = f"T{h:02d}"
     rows = []
     last_close = m["close"].ffill().iloc[-1]
@@ -167,6 +188,11 @@ def _run_tranche(h: int, tr: dict, m: dict, t: pd.Timestamp, cfg: Config,
     blocked = {a for a, d in tr["blocked_until"].items() if pd.Timestamp(d) > t}
 
     tgt = target_weights(sig, t, cfg, blocked=blocked, equity_dd=dd)
+    new = [a for a in tgt.index if a not in held]
+    if new:
+        mid.update(exec_prices(new, t_exec, live_mid))
+        px_mid = mid.reindex(cols)
+    bid, ask = mid * (1 - HALF_SPREAD), mid * (1 + HALF_SPREAD)
     orders = generate_orders(units, px_mid, tr["cash"], tgt, cfg.rebalance_threshold)
 
     for a, du in orders.items():          # ventes au bid
@@ -221,7 +247,7 @@ def run_once(cfg: Config | None = None, capital: float = 10_000.0, force: bool =
     rows, done = [], []
     sig = t_last = tgt = None
     for h, m, t in todo:
-        r, sig, tgt = _run_tranche(h, st["tranches"][str(h)], m, t, cfg, bid, ask, mid, now)
+        r, sig, tgt = _run_tranche(h, st["tranches"][str(h)], m, t, cfg, mid, now)
         rows += r
         done.append(h)
         if t_last is None or t > t_last:

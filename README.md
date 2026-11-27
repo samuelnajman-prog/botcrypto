@@ -46,7 +46,7 @@ La stratégie complète et ses justifications sont dans [`STRATEGIE.md`](STRATEG
 
 ## ⚡ Bot n°2 : day trading
 
-Cassure de volatilité intraday sur BTC, ETH, SOL, BNB, XRP et DOGE. Le bot achète si le prix casse ouverture + 0,8 × l'amplitude de la veille (seulement en tendance), et revend tout à la clôture du jour. Paper trading toutes les heures (`.github/workflows/daytrade.yml`), état dans `state/day/`.
+Cassure de volatilité intraday sur BTC, ETH, SOL, BNB, XRP et DOGE, version agressive (v2) : le bot achète via contrat perpétuel si le prix casse ouverture + 0,8 × l'amplitude de la veille (seulement en tendance 20 jours), jusqu'à 1/3 du capital par crypto et 1,5 × le capital au total, puis revend tout à la clôture du jour. Repère du test 2023-2026 : +21,6 %/an, pire baisse −27,5 %. Paper trading toutes les heures (`.github/workflows/daytrade.yml`), état dans `state/day/`.
 
 - **Page en direct :** https://samuelnajman-prog.github.io/botcrypto/day.html
 - **Stratégie, tests et limites :** [`STRATEGIE_DAYTRADING.md`](STRATEGIE_DAYTRADING.md). Sept stratégies intraday ont été testées ; seule celle-ci survit aux frais, et seulement avec des frais de contrats perpétuels bas.

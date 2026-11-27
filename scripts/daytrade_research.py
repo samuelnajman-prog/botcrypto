@@ -10,7 +10,7 @@ from multiprocessing import Pool
 sys.path.insert(0, ".")
 import pandas as pd  # noqa: E402
 
-from daytrade.research import Asset, Costs, itm, noise, orb, portfolio, stats, vbreak  # noqa: E402
+from daytrade.research import Asset, Costs, itm, noise, orb, pooled, portfolio, stats, vbreak  # noqa: E402
 
 SYMS = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE"]
 PERIODS = {"réglage": ("2020-01-01", "2022-12-31"), "test": ("2023-01-01", None)}
@@ -60,3 +60,12 @@ if __name__ == "__main__":
     for name, c in [("perpétuels", PERP), ("0,10 %", Costs()), ("OKX spot 0,20 %", Costs(0.0020, 0.0003)), ("Kraken Pro spot 0,38 %", Costs(0.0038, 0.0003))]:
         i, o = line(vbreak, dict(k=0.8, ma_filter=10), dict(sizing="vol", target_vol=0.03, cap=1), c)
         print(f"  {name:22s} réglage Sharpe {i['Sharpe']:+.2f} ({i['par an']:+.1%}/an) | test Sharpe {o['Sharpe']:+.2f} ({o['par an']:+.1%}/an, pire baisse {o['pire repli']:.1%})")
+
+    print("\nVersion agressive (v2), capital mutualisé :")
+    for name, kw in [("v1 ≈ 1/6, sans levier, moyenne 10 j", dict(params=dict(k=0.8, ma_filter=10), lev=1.0, cap=1 / 6, tv=0.03)),
+                     ("v2 : 34 %/trade, levier ≤ 1,5, moyenne 20 j", dict(params=dict(k=0.8, ma_filter=20), lev=1.5, cap=0.34, tv=0.06)),
+                     ("v2 modérée : 25 %/trade", dict(params=dict(k=0.8, ma_filter=20), lev=1.5, cap=0.25, tv=0.06))]:
+        res = []
+        for s_, e_ in PERIODS.values():
+            r, n = pooled(A, cost=PERP, start=s_, end=e_, **kw); res.append(stats(r, n, len(r)))
+        print(f"  {name:44s} réglage {res[0]['par an']:+.1%} DD {res[0]['pire repli']:.1%} | test {res[1]['par an']:+.1%} Sharpe {res[1]['Sharpe']:.2f} DD {res[1]['pire repli']:.1%}")

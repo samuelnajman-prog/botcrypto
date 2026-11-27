@@ -61,7 +61,8 @@ def test_trigger_then_close_next_day(state_dir):
     st = live.load_state()
     assert st["orders"]["BTC"]["filled"] is not None           # BTC a cassé son niveau
     assert st["orders"]["ETH"]["active"] and st["orders"]["ETH"]["filled"] is None
-    assert st["cash"] < 10_000
+    assert st["cash"] == pytest.approx(10_000 - st["orders"]["BTC"]["filled"]["fee"])   # marge : seuls les frais
+    assert st["orders"]["BTC"]["filled"]["notional"] <= live.CAP * 10_000 + 1e-6
     # passage le lendemain : la position est revendue à la clôture
     nxt = day + pd.Timedelta(days=1, minutes=10)
     mk = fake_market(day + pd.Timedelta(days=1), trigger_assets=())
@@ -93,3 +94,14 @@ def test_idempotent_same_hour(state_dir):
     live.run_once(now=now, mk=mk)
     assert live.load_state()["cash"] == pytest.approx(cash1)
     assert len(pd.read_csv(state_dir / "trades.csv")) == 1
+
+
+def test_leverage_cap(state_dir):
+    """Les 6 cryptos cassent : l'exposition totale ne dépasse pas LEV × capital."""
+    day = pd.Timestamp("2026-11-20")
+    now = day + pd.Timedelta(hours=12)
+    live.run_once(now=now, mk=fake_market(day, trigger_assets=live.ASSETS, upto=now))
+    st = live.load_state()
+    expo = sum(o["filled"]["notional"] for o in st["orders"].values() if o.get("filled"))
+    assert expo <= live.LEV * 10_000 + 1e-6
+    assert any(o.get("skipped") for o in st["orders"].values())

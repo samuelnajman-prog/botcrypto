@@ -166,7 +166,7 @@ def noise(a: Asset, kind="utc", mult=1.0, lookback=14, check_min=30, mode="ls", 
     return trades
 
 
-def vbreak(a: Asset, k=0.5, ma_filter=0, mode="long", stop_at_open=False, cost=Costs()):
+def vbreak(a: Asset, k=0.5, ma_filter=0, mode="long", stop_at_open=False, cat_stop=0.0, cost=Costs()):
     """Cassure de volatilité : achat si le prix dépasse ouverture + k × amplitude de la veille
     (vente si mode="ls" et le prix casse ouverture − k × amplitude). Filtre de tendance optionnel :
     long seulement si l'ouverture est au-dessus de la moyenne des `ma_filter` dernières clôtures,
@@ -194,7 +194,16 @@ def vbreak(a: Asset, k=0.5, ma_filter=0, mode="long", stop_at_open=False, cost=C
                 continue
             entry = raw * (1 + side * cost.slip)
             exit_px = None
-            if stop_at_open:
+            if cat_stop > 0:        # stop « catastrophe » à −cat_stop × volatilité journalière
+                dv = a.dvol.get(day, np.nan)
+                sp = entry * (1 - side * cat_stop * dv) if not np.isnan(dv) else None
+                if sp:
+                    for q in range(j + 1, i1):
+                        if (side > 0 and a.l[q] <= sp) or (side < 0 and a.h[q] >= sp):
+                            px = min(a.o[q], sp) if side > 0 else max(a.o[q], sp)
+                            exit_px = px * (1 - side * cost.slip)
+                            break
+            if exit_px is None and stop_at_open:
                 for q in range(j + 1, i1):
                     if (side > 0 and a.l[q] <= op) or (side < 0 and a.h[q] >= op):
                         px = min(a.o[q], op) if side > 0 else max(a.o[q], op)
@@ -202,7 +211,7 @@ def vbreak(a: Asset, k=0.5, ma_filter=0, mode="long", stop_at_open=False, cost=C
                         break
             if exit_px is None:
                 exit_px = a.c[i1 - 1] * (1 - side * cost.slip)
-            trades.append((day, side, entry, exit_px, None))
+            trades.append((day, side, entry, exit_px, None, int(a.t[j])))
             break
     return trades
 
@@ -225,7 +234,7 @@ def itm(a: Asset, last_min=60, cost=Costs()):
 def daily_returns(a: Asset, trades, sizing="risk", risk=0.01, target_vol=0.02, cap=1.0, cost=Costs()) -> pd.Series:
     """Rendement journalier de la poche de l'actif (frais inclus)."""
     out = {}
-    for d, side, e, x, rk in trades:
+    for d, side, e, x, rk, *_ in trades:
         if sizing == "risk" and rk:
             f = min(cap, risk / max(rk, 1e-4))
         else:
@@ -258,3 +267,30 @@ def portfolio(assets, fn, params, sizing, cost=Costs(), start="2020-01-01", end=
     idx = pd.date_range(start, end or assets[0].daily.index[-1], freq="D")
     df = pd.DataFrame(cols).reindex(idx).fillna(0.0)
     return df.mean(axis=1), n
+
+
+def pooled(assets, params, lev=1.0, cap=0.5, tv=0.03, cost=Costs(), start="2020-01-01", end=None):
+    """Allocation mutualisée : chaque trade déclenché reçoit min(cap, tv / vol_jour) × capital,
+    dans l'ordre des déclenchements, tant que l'exposition totale reste ≤ lev × capital.
+    Le capital inutilisé par les cryptos sans signal sert aux autres. Rendements journaliers composés."""
+    by_day = {}
+    for a in assets:
+        for tr in vbreak(a, cost=cost, **params):
+            d = tr[0]
+            if d < pd.Timestamp(start) or (end is not None and d > pd.Timestamp(end)):
+                continue
+            dv = a.dvol.get(d, np.nan)
+            if np.isnan(dv) or dv <= 0:
+                continue
+            by_day.setdefault(d, []).append((tr[5], min(cap, tv / dv), tr[1] * (tr[3] / tr[2] - 1) - 2 * cost.fee))
+    out, n = {}, 0
+    for d, lst in by_day.items():
+        used, r = 0.0, 0.0
+        for _, w, ret in sorted(lst):
+            w = min(w, lev - used)
+            if w <= 1e-9:
+                break
+            used += w; r += w * ret; n += 1
+        out[d] = r
+    idx = pd.date_range(start, end or assets[0].daily.index[-1], freq="D")
+    return pd.Series(out, dtype=float).reindex(idx).fillna(0.0), n

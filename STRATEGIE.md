@@ -145,6 +145,14 @@ Constats :
 - Couper le capital en 6 tranches décalées supprime ce risque de « mauvaise heure » : Sharpe nettement supérieur sur le réglage et égal à la meilleure heure en test, contre 0,74 en moyenne pour une heure unique. Le rendement test (+20 %) est inférieur à celui de 01h, qui a simplement été l'une des heures chanceuses sur 2023-2026.
 - **Décision : 6 tranches.** Le portefeuille paper (100 % cash au moment du changement) a été réparti en 6 parts égales.
 
+## 12. Fiabilité de l'exécution (27/11/2026)
+
+Le planificateur de GitHub Actions saute souvent des créneaux : 4 exécutions en 2 jours au lieu de 12. Corrections :
+- Le workflow est lancé toutes les heures (idempotent).
+- Chaque décision de tranche est exécutée au **prix du moment prévu**, c'est-à-dire l'ouverture de la bougie 5 min qui suit la fin de sa journée, même si le passage a lieu en retard.
+
+Le paper trading reste ainsi fidèle à la stratégie.
+
 ## Sources
 
 - Prix, volumes et historique : API publique Binance (data-api.binance.vision), CoinGecko `/global`, alternative.me Fear & Greed.

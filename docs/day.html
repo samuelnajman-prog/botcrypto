@@ -185,7 +185,7 @@ footer a { color: var(--ink-2); }
         <span>BTC sur la même période <b id="btcperf">—</b></span>
       </div>
       <div class="kpis">
-        <div class="kpi"><div class="k">Investi</div><div class="v" id="expo">—</div></div>
+        <div class="kpi"><div class="k">Exposition</div><div class="v" id="expo">—</div></div>
         <div class="kpi"><div class="k">Trades</div><div class="v" id="ntr">—</div></div>
         <div class="kpi"><div class="k">Gagnants</div><div class="v" id="win">—</div></div>
       </div>
@@ -196,8 +196,8 @@ footer a { color: var(--ink-2); }
       <div class="closebar"><div class="count" id="count">—</div><span class="sub" id="close-note"></span></div>
       <ol class="steps">
         <li>À 01:00 (Paris), le bot calcule un prix de déclenchement pour 6 cryptos : ouverture + 0,8 × l'amplitude de la veille.</li>
-        <li>Il ne pose l'ordre que si la crypto est en tendance (ouverture au-dessus de sa moyenne 10 jours).</li>
-        <li>Si le prix touche le niveau dans la journée, il achète ; taille ajustée à la volatilité, sans levier.</li>
+        <li>Il ne pose l'ordre que si la crypto est en tendance (ouverture au-dessus de sa moyenne 20 jours).</li>
+        <li>Si le prix touche le niveau, il achète via un contrat perpétuel : jusqu'à 1/3 du capital par crypto, dans l'ordre des déclenchements, exposition totale plafonnée à 1,5 × le capital.</li>
         <li>Tout est revendu à la clôture de la journée : aucune position la nuit suivante.</li>
       </ol>
     </section>
@@ -256,20 +256,19 @@ footer a { color: var(--ink-2); }
   const price = (o) => T[o.symbol] ?? o.last_close_5m;
 
   function render() {
-    let posVal = 0, costBasis = 0;
-    D.orders.forEach((o) => { if (o.filled) { posVal += o.filled.units * price(o); costBasis += o.filled.units * o.filled.price; } });
-    const eq = D.cash + posVal;
-    const eqOpen = D.equity_history.length ? null : null;
+    // comptabilité de type marge : équité = capital + P&L latent ; exposition = notionnel ouvert
+    let expo = 0, upnl = 0;
+    D.orders.forEach((o) => { if (o.filled) { const p = price(o); expo += o.filled.units * p; upnl += o.filled.units * (p - o.filled.price); } });
+    const eq = D.cash + upnl;
     const e = $("equity"); e.textContent = "";
     const parts = nf(2).format(eq).split(",");
     e.append(parts[0], el("small", {}, "," + parts[1] + " $"));
     if (lastEq != null && Math.abs(eq - lastEq) > 0.005) { e.classList.add(eq > lastEq ? "flash-up" : "flash-down"); setTimeout(() => e.classList.remove("flash-up", "flash-down"), 900); }
     lastEq = eq;
-    const openEq = D.cash + costBasis + D.orders.reduce((s, o) => s + (o.filled ? o.filled.fee : 0), 0);
-    const today = eq / openEq - 1; $("today").textContent = pct(today, 2); cls($("today"), today);
+    const today = eq / (D.equity_open || D.cash) - 1; $("today").textContent = pct(today, 2); cls($("today"), today);
     const perf = eq / D.initial - 1; $("perf").textContent = pct(perf, 2); cls($("perf"), perf);
     const btc = T["BTCUSDT"], bp = btc && D.btc_at_start ? btc / D.btc_at_start - 1 : null; $("btcperf").textContent = pct(bp, 2); cls($("btcperf"), bp);
-    $("expo").textContent = pct(posVal / eq, 0, false);
+    $("expo").textContent = pct(expo / eq, 0, false);
     $("ntr").textContent = D.stats.trades;
     $("win").textContent = D.stats.trades ? pct(D.stats.wins / D.stats.trades, 0, false) : "—";
     const days = Math.floor((Date.now() - Date.parse(D.started_at)) / 86400000) + 1;
@@ -281,16 +280,16 @@ footer a { color: var(--ink-2); }
       const c = el("div", { class: "ord" }), top = el("div", { class: "top" }), p = price(o);
       let tag;
       if (o.filled) { tag = el("span", { class: "tag in" }, "Acheté"); nIn++; }
-      else if (o.active) { tag = el("span", { class: "tag wait" }, "En attente"); nAct++; }
+      else if (o.active && !o.skipped) { tag = el("span", { class: "tag wait" }, "En attente"); nAct++; }
       else tag = el("span", { class: "tag off" }, "Pas d'ordre");
       top.append(el("span", { class: "sym" }, o.asset), tag); c.append(top);
       c.append(el("div", { class: "px" }, usd(p, pdec(p))));
       const sub = el("div", { class: "sub" });
       if (o.filled) {
         const r = p / o.filled.price - 1; const s = el("b", {}, pct(r, 2)); cls(s, r);
-        sub.append("Acheté à " + usd(o.filled.price, pdec(o.filled.price)) + " · ", s, " · " + usd(o.notional));
-      } else if (o.active) {
-        sub.textContent = "Achat si ≥ " + usd(o.level, pdec(o.level)) + " · encore " + pct(o.level / p - 1, 1, false);
+        sub.append("Acheté à " + usd(o.filled.price, pdec(o.filled.price)) + " · ", s, " · " + usd(o.filled.notional || o.notional));
+      } else if (o.active && !o.skipped) {
+        sub.textContent = "Achat si ≥ " + usd(o.level, pdec(o.level)) + " · encore " + pct(o.level / p - 1, 1, false) + " · " + usd(o.notional);
       } else sub.textContent = o.reason || "";
       c.append(sub);
       if (o.level && o.open) {
@@ -352,7 +351,7 @@ footer a { color: var(--ink-2); }
       b.append(t);
     }
     const bt = D.backtest;
-    $("bt-note").textContent = "Repère du test 2023-2026 (frais de contrats perpétuels) : " + pct(bt.oos_cagr, 1) + " par an, pire baisse " + pct(bt.oos_maxdd, 1) + ", environ " + bt.trades_per_year + " trades par an sur les 6 cryptos. Avec des frais au comptant de 0,20 % par ordre, la stratégie ne gagne plus rien.";
+    $("bt-note").textContent = "Repère du test 2023-2026, version agressive (frais de contrats perpétuels) : " + pct(bt.oos_cagr, 1) + " par an, pire baisse " + pct(bt.oos_maxdd, 1) + ", environ " + bt.trades_per_year + " trades par an. Avec des frais au comptant de 0,20 % par ordre, elle perd de l'argent.";
   }
 
   function tick() {

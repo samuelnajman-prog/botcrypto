@@ -1,4 +1,4 @@
-# Bot n°2 : day trading crypto (v1, 27 novembre 2026)
+# Bot n°2 : day trading crypto (v2 « agressive », 27 novembre 2026)
 
 ## 1. En une phrase
 
@@ -28,7 +28,7 @@ Bougies 5 minutes Binance de janvier 2020 à octobre 2026. Réglage jugé sur 20
 
 **Constat principal : presque toutes les méthodes de day trading ont un petit avantage avant frais, et les frais le font disparaître.** Seule la cassure de volatilité garde un avantage net, parce qu'elle trade peu (une fois tous les 5 à 6 jours par crypto) et capte des mouvements larges.
 
-## 4. Règle retenue
+## 4. Règle de base (v1, remplacée par la v2 du §9)
 
 1. **Univers :** BTC, ETH, SOL, BNB, XRP, DOGE (cryptos liquides seulement, car le day trading sur petites cryptos coûte trop cher).
 2. **Niveau d'achat :** ouverture du jour (00:00 UTC) + 0,8 × l'amplitude (plus haut − plus bas) de la veille.
@@ -69,7 +69,7 @@ Par année (1× par crypto, frais 0,10 %) : 2020 +41 %, 2021 +146 %, 2022 −13 
 | Pire baisse | −9 % | au-delà de −15 % |
 | Gain moyen par trade | ~+0,4 % brut | négatif sur 50 trades = les frais réels mangent tout |
 
-Aujourd'hui, les 6 cryptos sont sous leur moyenne 10 jours : le bot est à 100 % en stablecoin, ce qui est normal en marché baissier.
+Repères de la v2 : pire baisse attendue vers −27 %, alerte au-delà de −35 %.
 
 ## 8. Le skill « day-trader » (Jake Schincariol) : audit et améliorations
 
@@ -81,6 +81,40 @@ Aujourd'hui, les 6 cryptos sont sous leur moyenne 10 jours : le bot est à 100 %
   4. Calcul systématique de l'espérance **après frais et glissement** dans le Time Machine.
   5. Avertissement : les résultats publiés ont souvent disparu une fois répliqués avec des frais réalistes.
 - **Ces améliorations n'ont pas pu être testées sur actions :** Yahoo ne donne que 60 jours de bougies 5 min, ce qui est trop court pour valider quoi que ce soit.
+
+## 9. Version agressive (v2, en service depuis le 27/11/2026)
+
+Demande : viser plus de 10 % par an. Trois leviers ont été testés (216 combinaisons, reproduits dans `scripts/daytrade_research.py`) :
+1. **Capital mutualisé :** les cryptos sans signal laissent leur part aux autres, au lieu de 1/6 fixe chacune.
+2. **Levier :** jusqu'à 2, le plafond légal des CFD/perpétuels pour les particuliers dans l'UE.
+3. **Univers de 12 cryptos** au lieu de 6.
+
+Règle de sélection fixée avant de regarder la période de test : meilleur rendement 2020-2022 avec une pire baisse ≥ −25 % et un Sharpe ≥ 1,5.
+
+**Règle retenue :**
+- niveau = ouverture + 0,8 × amplitude de la veille ;
+- filtre : ouverture au-dessus de la **moyenne 20 jours** ;
+- chaque position = min(**34 %**, 6 % / volatilité 14 j) du capital, attribuée dans l'ordre des déclenchements ;
+- exposition totale ≤ **1,5 × le capital** ;
+- 6 cryptos, revente à la clôture.
+
+| Test 2023-2026, frais de perpétuels | Par an | Sharpe | Pire baisse | Pire jour |
+|---|---|---|---|---|
+| v1 (1/6 par crypto, sans levier) | +12,3 % | 1,06 | −10,9 % | −3,3 % |
+| **v2 agressive** | **+21,6 %** | **0,94** | **−27,5 %** | **−7,0 %** |
+| v2 avec 1/4 par trade (variante modérée) | +17,7 % | 0,99 | −21,1 % | −5,2 % |
+| v2 avec 1/2 par trade | +22,7 % | 0,82 | −37,1 % | −10,3 % |
+| v2 avec levier 2 | +23,7 % | 0,99 | −27,6 % | −7,0 % |
+
+Par année (v2) : 2020 +121 %, 2021 +379 %, 2022 −1 %, 2023 +7 %, 2024 +56 %, 2025 +14 %, 2026 (à octobre) +11 %. La pire baisse va du 20/01/2023 au 24/09/2023 (−27,5 %).
+
+Constats :
+- **L'agressivité ne rend pas la stratégie meilleure, elle la rend plus grosse.** Le Sharpe reste vers 0,9-1,0 : le rendement double, la pire baisse est multipliée par 2,5.
+- Le levier au-delà de 1,5 n'apporte presque rien (rarement atteint).
+- **Un stop « catastrophe » intraday dégrade tout** (test : +11 à +18 % par an au lieu de +22 %).
+- **12 cryptos au lieu de 6 : pas mieux en test** (Sharpe médian 0,72 contre 0,86).
+- **Les frais restent décisifs :** à 0,10 % par ordre la v2 tombe à +13 % par an, à 0,20 % (OKX au comptant) à −5 %.
+- Avec un levier de 1,5 et des positions fermées chaque soir, il n'y a pas de risque de liquidation réaliste : il faudrait une chute d'environ 65 % du panier dans la journée.
 
 ## Sources
 

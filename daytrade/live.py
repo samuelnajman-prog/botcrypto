@@ -1,12 +1,15 @@
 """Bot n°2 — day trading crypto en paper trading : cassure de volatilité intraday.
 
-Règle (validée dans daytrade/research.py, voir STRATEGIE_DAYTRADING.md) :
+Règle v2 « agressive » (validée dans daytrade/research.py, voir STRATEGIE_DAYTRADING.md §9) :
   Chaque jour à 00:00 UTC, pour BTC, ETH, SOL, BNB, XRP, DOGE :
     - niveau d'achat = ouverture du jour + 0,8 × (plus haut − plus bas de la veille)
-    - seulement si l'ouverture est au-dessus de la moyenne des 10 dernières clôtures (tendance)
-    - taille = 1/6 du capital × min(1, 3 % / volatilité journalière sur 14 jours), sans levier
-  Si le prix touche le niveau pendant la journée : achat (ordre stop virtuel), puis
+    - seulement si l'ouverture est au-dessus de la moyenne des 20 dernières clôtures (tendance)
+  Si le prix touche le niveau pendant la journée : achat via contrat perpétuel (ordre stop virtuel),
   revente à la clôture du jour (00:00 UTC). Une seule entrée par crypto et par jour.
+  Taille d'une position = min(34 %, 6 % / volatilité journalière 14 j) du capital d'ouverture,
+  attribuée dans l'ordre des déclenchements, exposition totale ≤ 1,5 × le capital (levier
+  maximal 1,5, sous le plafond légal de 2 pour les particuliers dans l'UE).
+  Comptabilité de type marge : le capital reste en stablecoin, seuls frais et P&L le modifient.
 
 Exécution simulée comme un ordre stop posé à l'avance : remplissage au niveau (ou à l'ouverture
 de la bougie 5 min si elle s'ouvre au-dessus), + slippage et frais. Les remplissages dépendent
@@ -33,8 +36,10 @@ SITE = ROOT / "docs"
 
 ASSETS = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE"]
 K = 0.8                 # fraction de l'amplitude de la veille
-MA = 10                 # filtre de tendance (jours)
-TARGET_VOL = 0.03       # volatilité journalière visée par position
+MA = 20                 # filtre de tendance (jours)
+TARGET_VOL = 0.06       # volatilité journalière visée par position
+CAP = 0.34              # taille maximale d'une position (fraction du capital d'ouverture)
+LEV = 1.5               # exposition totale maximale (× capital)
 VOL_WINDOW = 14
 FEE = 0.0006            # par côté : taker perpétuel 0,05 % + ~0,01 % de financement moyen
 SLIP = 0.0003           # par ordre
@@ -89,7 +94,7 @@ def day_plan(daily: pd.DataFrame, day: pd.Timestamp, day_open: float) -> dict:
     level = day_open + K * (prev.high - prev.low)
     ma = hist.close.tail(MA).mean()
     vol = hist.close.pct_change().tail(VOL_WINDOW).std()
-    frac = float(min(1.0, TARGET_VOL / vol)) if vol > 0 else 0.0
+    frac = float(min(CAP, TARGET_VOL / vol)) if vol > 0 else 0.0
     plan = {"open": day_open, "level": float(level), "ma10": float(ma), "vol14": float(vol), "size_frac": frac,
             "prev_range": float(prev.high - prev.low)}
     if day_open <= ma:
@@ -156,27 +161,39 @@ def _open_day(st: dict, mk: dict, day: pd.Timestamp, only: list | None = None) -
             st["orders"][a] = {"active": False, "reason": "pas encore de prix pour ce jour"}
             continue
         plan = day_plan(mk[a]["daily"], day, float(first.open.iloc[0]))
-        plan["notional"] = round(equity_open / len(ASSETS) * plan.get("size_frac", 0.0), 2)
+        plan["notional"] = round(equity_open * plan.get("size_frac", 0.0), 2)   # taille si capacité dispo
         plan["filled"] = None
         st["orders"][a] = plan
 
 
 def _update_fills(st: dict, mk: dict, day: pd.Timestamp, now_iso: str, rows: list) -> None:
+    """Nouveaux déclenchements, traités dans l'ordre chronologique ; chacun reçoit sa taille
+    tant que l'exposition totale du jour reste ≤ LEV × capital d'ouverture."""
+    start = pd.Timestamp(st["started_at"]).tz_convert("UTC").tz_localize(None).floor("5min")
+    eq0 = st.get("equity_open", st["cash"])
+    used = sum(o["filled"]["notional"] for o in st["orders"].values() if o.get("filled"))
+    hits = []
     for a, o in st["orders"].items():
-        if not o.get("active") or o.get("filled"):
+        if not o.get("active") or o.get("filled") or o.get("skipped"):
             continue
-        start = pd.Timestamp(st["started_at"]).tz_convert("UTC").tz_localize(None).floor("5min")
         f = find_fill(mk[a]["m5"], day, o["level"], not_before=start)
-        if f is None:
+        if f is not None:
+            hits.append((f[0], a, f[1]))
+    for t, a, raw in sorted(hits):
+        o = st["orders"][a]
+        notional = min(o["notional"], max(0.0, LEV * eq0 - used))
+        if notional < 1.0:
+            o["skipped"] = True
+            o["reason"] = "déclenché, mais levier maximal déjà atteint"
             continue
-        t, raw = f
         price = raw * (1 + SLIP)
-        units = o["notional"] / price
-        fee = o["notional"] * FEE
-        st["cash"] -= o["notional"] + fee
-        o["filled"] = {"time": str(t), "price": price, "units": units, "fee": fee}
+        units = notional / price
+        fee = notional * FEE
+        st["cash"] -= fee
+        used += notional
+        o["filled"] = {"time": str(t), "price": price, "units": units, "fee": fee, "notional": round(notional, 2)}
         o["reason"] = "position ouverte, revente à 00:00 UTC"
-        rows.append([now_iso, str(day.date()), a, "BUY", units, price, o["notional"], fee, str(t)])
+        rows.append([now_iso, str(day.date()), a, "BUY", units, price, notional, fee, str(t)])
 
 
 def _close_day(st: dict, mk: dict, day: pd.Timestamp, now_iso: str, rows: list) -> list:
@@ -192,8 +209,9 @@ def _close_day(st: dict, mk: dict, day: pd.Timestamp, now_iso: str, rows: list) 
         px = float(bars.close.iloc[-1]) * (1 - SLIP)
         val = f["units"] * px
         fee = val * FEE
-        st["cash"] += val - fee
-        pnl = val - fee - (f["units"] * f["price"] + f["fee"])
+        gross = f["units"] * (px - f["price"])
+        st["cash"] += gross - fee                      # marge : seul le P&L touche le capital
+        pnl = gross - fee - f["fee"]
         st["stats"]["trades"] += 1
         st["stats"]["wins"] += int(pnl > 0)
         traded = True
@@ -204,13 +222,15 @@ def _close_day(st: dict, mk: dict, day: pd.Timestamp, now_iso: str, rows: list) 
 
 
 def mark_to_market(st: dict, mk: dict) -> tuple[float, dict]:
-    pos = {}
+    """Équité = capital + P&L latent des positions ouvertes ; pos = exposition (notionnel) par crypto."""
+    pos, upnl = {}, 0.0
     for a, o in st["orders"].items():
         f = o.get("filled") if o.get("active") else None
         if f:
             last = float(mk[a]["m5"].close.iloc[-1])
             pos[a] = f["units"] * last
-    return st["cash"] + sum(pos.values()), pos
+            upnl += f["units"] * (last - f["price"])
+    return st["cash"] + upnl, pos
 
 
 def run_once(capital: float = 10_000.0, now: pd.Timestamp | None = None, mk: dict | None = None) -> str:
@@ -280,13 +300,15 @@ def export_site(st: dict, mk: dict, equity: float, pos: dict) -> None:
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "day": st["day"], "initial": st["initial"], "cash": round(st["cash"], 2), "peak": round(st["peak"], 2),
         "started_at": st["started_at"], "btc_at_start": st["btc_at_start"], "stats": st["stats"],
-        "rules": {"k": K, "ma": MA, "target_vol": TARGET_VOL, "fee": FEE, "slip": SLIP, "assets": ASSETS},
+        "equity_open": round(st.get("equity_open", st["cash"]), 2),
+        "rules": {"k": K, "ma": MA, "target_vol": TARGET_VOL, "cap": CAP, "lev": LEV, "fee": FEE, "slip": SLIP,
+                  "assets": ASSETS, "accounting": "margin"},
         "orders": orders,
         "equity_history": [] if eq.empty else [{"ts": r.ts, "equity": float(r.equity), "btc": float(r.btc)} for r in eq.itertuples()],
         "trades": [] if tr.empty else [{"day": r.day, "asset": r.asset, "side": r.side, "price": float(r.price),
                                         "value": round(abs(float(r.value)), 2), "info": str(r.info)}
                                        for r in tr.tail(30).iloc[::-1].itertuples()],
-        "backtest": {"oos_cagr": 0.106, "oos_maxdd": -0.086, "oos_sharpe": 1.09, "trades_per_year": 262},
+        "backtest": {"oos_cagr": 0.216, "oos_maxdd": -0.275, "oos_sharpe": 0.94, "trades_per_year": 269},
     }
     SITE.mkdir(exist_ok=True)
     (SITE / "day.json").write_text(json.dumps(data, ensure_ascii=False, indent=1))
