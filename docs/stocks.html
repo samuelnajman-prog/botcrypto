@@ -120,6 +120,7 @@ footer { margin-top: 48px; color: var(--muted); font-size: 11.5px; }
 const URLS = ["https://raw.githubusercontent.com/samuelnajman-prog/botcrypto/main/docs/stocks.json", "stocks.json"];
 const REPLAY = ["https://raw.githubusercontent.com/samuelnajman-prog/botcrypto/main/docs/stocks_replay.json", "stocks_replay.json"];
 const $ = (id) => document.getElementById(id);
+const pl = (n, w) => `${n} ${w}${n > 1 ? "s" : ""}`;
 const pct = (x, d = 1) => (x == null || !isFinite(x) ? "—" : (x >= 0 ? "+" : "") + (100 * x).toFixed(d).replace(".", ",") + " %");
 const usd = (x, d = 0) => (x == null ? "—" : x.toLocaleString("fr-FR", { maximumFractionDigits: d, minimumFractionDigits: d }) + " $");
 const cls = (x) => (x > 0 ? "pos" : x < 0 ? "neg" : "mut");
@@ -132,7 +133,7 @@ async function getJSON(urls) {
 }
 
 function line(svg, tipEl, pts, fmtY, label) {
-  const W = svg.clientWidth || 800, H = 220, P = { l: 52, r: 12, t: 12, b: 24 };
+  const W = svg.clientWidth || 800, H = 220, P = { l: 74, r: 12, t: 12, b: 24 };
   if (!pts.length) { svg.innerHTML = `<text x="12" y="30" fill="#7d7c75" font-size="12">${label}</text>`; return; }
   const ys = pts.map((p) => p[1]); let lo = Math.min(...ys), hi = Math.max(...ys); if (hi - lo < 1e-9) { hi += 0.01; lo -= 0.01; }
   const pad = (hi - lo) * 0.08; lo -= pad; hi += pad;
@@ -175,14 +176,14 @@ function render(D, RP) {
   if (T) {
     const ret = T.pnl / D.equity;
     $("td").innerHTML = `<span class="${cls(T.pnl)}">${usd(T.pnl)}</span>`;
-    $("tds").textContent = `${T.positions.length} ventes · ${T.closed ? "séance soldée" : "en cours"} · ${pct(ret, 2)}`;
-    $("dayl").textContent = new Date(T.day + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }) + (T.selection ? ` · ${T.selection.candidates} gaps ≥ 3 % parmi ${T.selection.scanned} actions` : "");
+    $("tds").textContent = `${pl(T.positions.length, "vente")} · ${T.closed ? "séance soldée" : "en cours"} · ${pct(ret, 2)}`;
+    $("dayl").textContent = new Date(T.day + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }) + (T.selection ? ` · ${pl(T.selection.candidates, "gap")} ≥ 3 % parmi ${T.selection.scanned} actions` : "");
   } else { $("td").textContent = "—"; $("tds").textContent = "aucune séance encore"; }
   const H = D.history || [];
   $("ns").textContent = H.length;
   const wins = H.filter((h) => h.pnl > 0).length;
-  $("nss").textContent = H.length ? `${wins} gagnantes · ${H.length - wins} perdantes` : "première séance à venir";
-  $("nx").textContent = nextSession(); $("nxs").textContent = "scan 15:25 · vente 15:30 · rachat 22:00 (Paris)";
+  $("nss").textContent = H.length ? `${pl(wins, "gagnante")} · ${pl(H.length - wins, "perdante")}` : "première séance à venir";
+  $("nx").textContent = nextSession(); $("nxs").textContent = "scan 15:25 · vente 15:30 · rachat 22:00, ou 19:00 les demi-séances (Paris)";
 
   const P = T ? T.positions : [];
   const sel = T && T.selection ? Object.fromEntries(T.selection.picked.map((p) => [p.sym, p])) : {};
