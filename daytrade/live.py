@@ -98,7 +98,7 @@ def day_plan(daily: pd.DataFrame, day: pd.Timestamp, day_open: float) -> dict:
     plan = {"open": day_open, "level": float(level), "ma10": float(ma), "vol14": float(vol), "size_frac": frac,
             "prev_range": float(prev.high - prev.low)}
     if day_open <= ma:
-        plan.update(active=False, reason="tendance baissière (ouverture sous la moyenne 10 jours)")
+        plan.update(active=False, reason=f"tendance baissière (ouverture sous la moyenne {MA} jours)")
     else:
         plan.update(active=True, reason="ordre d'achat en attente")
     return plan
