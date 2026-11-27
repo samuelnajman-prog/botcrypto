@@ -44,13 +44,16 @@ Bot de trading systématique sur les cryptos du spot Binance : il suit les tenda
 
 La stratégie complète et ses justifications sont dans [`STRATEGIE.md`](STRATEGIE.md).
 
-## ⚡ Bot n°2 : day trading
+## ⚡ Bot n°2 : day trading actions US
 
-Cassure de volatilité intraday sur BTC, ETH, SOL, BNB, XRP et DOGE, version agressive (v2) : le bot achète via contrat perpétuel si le prix casse ouverture + 0,8 × l'amplitude de la veille (seulement en tendance 20 jours), jusqu'à 1/3 du capital par crypto et 1,5 × le capital au total, puis revend tout à la clôture du jour. Repère du test 2023-2026 : +21,6 %/an, pire baisse −27,5 %. Paper trading toutes les heures (`.github/workflows/daytrade.yml`), état dans `state/day/`.
+Le bot n°2 ne trade plus de crypto : il fait du day trading sur les **actions américaines**. Chaque séance, il repère à 9:25 (heure de New York) les actions liquides (> 50 M$ échangés/jour, > 5 $) qui cotent au moins 3 % au-dessus de la clôture de la veille, lit leur actualité (Yahoo Finance) pour écarter les annonces de rachat, **vend à découvert les 15 plus gros gaps à l'ouverture** (1/15 du capital chacun, stop à +15 %) et **rachète tout à la clôture**. Aucune position la nuit. Capital fictif : 25 000 $.
 
-- **Page en direct :** https://samuelnajman-prog.github.io/botcrypto/day.html
-- **Stratégie, tests et limites :** [`STRATEGIE_DAYTRADING.md`](STRATEGIE_DAYTRADING.md). Sept stratégies intraday ont été testées ; seule celle-ci survit aux frais, et seulement avec des frais de contrats perpétuels bas.
-- **Commandes :** `python main.py day run` (une exécution), `python main.py day status`, `python scripts/daytrade_research.py` (refaire les tests, après `python scripts/download_5m.py BTCUSDT ETHUSDT SOLUSDT BNBUSDT XRPUSDT DOGEUSDT`).
+Repères des tests (frais 0,10 % aller-retour) : **+40 %/an sur 2,9 ans** (déc. 2023 → nov. 2026, bougies 1 h, sélection sur la pré-séance), Sharpe 1,2, pire repli −23 % ; rejeu des 40 dernières séances avec le code du bot : +2,2 %. Les gains disparaissent si les frais dépassent ~0,25 % aller-retour.
+
+- **Page en direct :** https://samuelnajman-prog.github.io/botcrypto/stocks.html
+- **Stratégie, tests et limites :** [`STRATEGIE_DAYTRADING.md`](STRATEGIE_DAYTRADING.md) — six familles de stratégies testées (cassure d'ouverture « stocks in play », momentum intraday SPY/QQQ, gaps baissiers, gaps haussiers…) ; seule la revente des gaps haussiers d'attention survit.
+- **Commandes :** `python main.py stocks run` (une exécution, à lancer pendant ou après la séance), `python main.py stocks status`, `python main.py stocks universe` (liste des actions liquides). Paper trading toutes les 30 min en séance (`.github/workflows/stocks.yml`), état dans `state/stocks/`.
+- **Refaire les tests :** voir l'en-tête de `stocks/data.py` (données Yahoo, ~1 Go à télécharger, ~2 Go avec les caches), puis `python scripts/stocks_research.py` et `python scripts/stocks_replay.py` (nécessite `pip install pyarrow`).
 
 ## Installation
 

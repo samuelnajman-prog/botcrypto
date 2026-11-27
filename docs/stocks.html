@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bot n°2 · Day trading actions US — en direct</title>
+<meta name="description" content="Bot de day trading sur actions américaines (paper trading) : ventes des gaps haussiers d'attention à l'ouverture, rachat à la clôture.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0d0c; --panel: #121514; --panel-2: #171b19; --line: #262b28; --line-2: #333a36;
+  --ink: #eeede8; --ink-2: #b9b8ae; --muted: #7d7c75;
+  --bot: #3987e5; --good: #3fbf6a; --bad: #e66767; --amber: #e8a33d;
+  --serif: "Instrument Serif", "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --r: 14px;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 var(--mono); }
+body::before { content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .35;
+  background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 48px 48px; mask-image: radial-gradient(ellipse at 50% 0%, #000 0%, transparent 70%); }
+.wrap { position: relative; max-width: 1080px; margin: 0 auto; padding: 22px 18px 80px; }
+header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.brand { font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-2); }
+.brand b { color: var(--ink); font-weight: 600; }
+.live { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink-2); border: 1px solid var(--line-2); border-radius: 999px; padding: 5px 10px; background: rgba(18,21,20,.7); white-space: nowrap; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 0 rgba(63,191,106,.6); animation: pulse 2s infinite; }
+.live.stale .dot { background: var(--amber); animation: none; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(63,191,106,.55); } 70% { box-shadow: 0 0 0 8px rgba(63,191,106,0); } 100% { box-shadow: 0 0 0 0 rgba(63,191,106,0); } }
+.nav { display: flex; gap: 6px; margin: 18px 0 6px; flex-wrap: wrap; }
+.nav a { color: var(--ink-2); text-decoration: none; font-size: 12px; border: 1px solid var(--line-2); border-radius: 999px; padding: 6px 12px; }
+.nav a.on { color: var(--bg); background: var(--ink); border-color: var(--ink); }
+h1 { font: 400 clamp(38px, 7vw, 68px)/1.02 var(--serif); margin: 26px 0 8px; letter-spacing: -.01em; }
+h1 i { color: var(--ink-2); }
+.lede { color: var(--ink-2); max-width: 720px; margin: 0 0 22px; }
+h2 { font: 400 30px/1.1 var(--serif); margin: 40px 0 12px; }
+h2 small { font: 12px var(--mono); color: var(--muted); margin-left: 8px; letter-spacing: .04em; }
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+@media (max-width: 760px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+.card { background: linear-gradient(180deg, var(--panel), var(--panel-2)); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 14px 12px; }
+.k { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.v { font: 400 34px/1.1 var(--serif); margin-top: 6px; }
+.s { font-size: 12px; color: var(--ink-2); margin-top: 2px; }
+.pos { color: var(--good); } .neg { color: var(--bad); } .mut { color: var(--muted); }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 4px 0; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+th { text-align: left; font-weight: 500; color: var(--muted); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; padding: 10px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.wrapcell { white-space: normal; min-width: 220px; color: var(--ink-2); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.tag { display: inline-block; font-size: 10.5px; border: 1px solid var(--line-2); border-radius: 999px; padding: 1px 7px; margin: 0 4px 3px 0; color: var(--ink-2); }
+.tag.warn { color: var(--amber); border-color: rgba(232,163,61,.4); }
+.badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line-2); }
+.badge.stop { color: var(--bad); border-color: rgba(230,103,103,.45); }
+.badge.open { color: var(--bot); border-color: rgba(57,135,229,.45); }
+.badge.close { color: var(--ink-2); }
+a { color: var(--ink); }
+.empty { padding: 18px 14px; color: var(--ink-2); }
+.chart { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 12px; position: relative; }
+.chart svg { width: 100%; height: 220px; display: block; }
+.tip { position: absolute; pointer-events: none; background: #0e100f; border: 1px solid var(--line-2); border-radius: 8px; padding: 6px 9px; font-size: 12px; display: none; white-space: nowrap; }
+.rules { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+@media (max-width: 760px) { .rules { grid-template-columns: 1fr; } }
+.rule b { display: block; font: 400 22px/1.15 var(--serif); margin-bottom: 4px; }
+.rule p { margin: 0; color: var(--ink-2); font-size: 12.5px; }
+.note { color: var(--muted); font-size: 12px; margin-top: 10px; max-width: 820px; }
+.warnbox { border: 1px solid rgba(232,163,61,.35); background: rgba(232,163,61,.06); border-radius: var(--r); padding: 12px 14px; color: var(--ink-2); font-size: 12.5px; margin-top: 12px; }
+footer { margin-top: 48px; color: var(--muted); font-size: 11.5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><b>Bot n°2</b> · day trading actions US · paper trading</div>
+    <div class="live" id="live"><span class="dot"></span><span id="upd">chargement…</span></div>
+  </header>
+  <nav class="nav"><a href="./">Bot n°1 · tendance crypto</a><a class="on" href="stocks.html">Bot n°2 · day trading actions</a></nav>
+
+  <h1>Vendre l'excès <i>d'enthousiasme</i><br>du matin, racheter le soir.</h1>
+  <p class="lede">Chaque séance de Wall Street, le bot repère avant l'ouverture les actions liquides qui bondissent de plus de 3 % sans annonce de rachat, les vend à découvert à l'ouverture et les rachète à la clôture. Aucune position la nuit. Argent fictif : rien n'est réellement passé en bourse.</p>
+
+  <div class="grid">
+    <div class="card"><div class="k">Capital fictif</div><div class="v" id="eq">—</div><div class="s" id="eqs">—</div></div>
+    <div class="card"><div class="k">Séance en cours</div><div class="v" id="td">—</div><div class="s" id="tds">—</div></div>
+    <div class="card"><div class="k">Séances jouées</div><div class="v" id="ns">—</div><div class="s" id="nss">—</div></div>
+    <div class="card"><div class="k">Prochaine séance</div><div class="v" id="nx">—</div><div class="s" id="nxs">—</div></div>
+  </div>
+
+  <h2>Positions du jour <small id="dayl"></small></h2>
+  <div class="panel" id="pos"></div>
+
+  <h2>Écartées par le scan <small>actualité, liquidité, cotation</small></h2>
+  <div class="panel" id="rej"></div>
+
+  <h2>Historique <small>courbe du capital fictif</small></h2>
+  <div class="chart" id="hc"><svg id="hsvg" role="img" aria-label="Courbe du capital du bot actions"></svg><div class="tip" id="htip"></div></div>
+  <div class="panel" id="hist" style="margin-top:10px"></div>
+
+  <h2>Les règles <small>identiques en backtest et en direct</small></h2>
+  <div class="rules">
+    <div class="card rule"><b>9:25 · le scan</b><p>Actions ordinaires US à plus de 5 $, plus de 50 M$ échangés par jour (moyenne 20 séances). Cours de pré-séance de 9:25 au moins 3 % au-dessus de la clôture de la veille. Lecture de l'actualité Yahoo de chaque candidat : une annonce de rachat ou de fusion l'écarte. On garde les 15 plus gros gaps.</p></div>
+    <div class="card rule"><b>9:30 · la vente</b><p>Vente à découvert au prix d'ouverture officiel, 1/15 du capital par titre (exposition totale 1×). Un ordre stop rachète automatiquement une position qui monte de 15 % au-dessus du prix de vente.</p></div>
+    <div class="card rule"><b>16:00 · le rachat</b><p>Tout ce qui reste est racheté au prix de clôture. Frais comptés à chaque ordre : 0,005 $ par action (minimum 0,35 $) plus 0,03 % de glissement.</p></div>
+  </div>
+
+  <h2>Ce que disent les tests <small>avant d'y croire</small></h2>
+  <div class="grid" id="bt"></div>
+  <div class="chart" style="margin-top:10px"><svg id="bsvg" role="img" aria-label="Backtest sur 2,9 ans"></svg><div class="tip" id="btip"></div></div>
+  <p class="note" id="btn"></p>
+  <div class="warnbox" id="warn"></div>
+
+  <footer>Données Yahoo Finance (non officielles, différées). Mise à jour par GitHub Actions toutes les 30 minutes pendant la séance. Ce n'est pas un conseil en investissement.</footer>
+</div>
+<script>
+const URLS = ["https://raw.githubusercontent.com/samuelnajman-prog/botcrypto/main/docs/stocks.json", "stocks.json"];
+const REPLAY = ["https://raw.githubusercontent.com/samuelnajman-prog/botcrypto/main/docs/stocks_replay.json", "stocks_replay.json"];
+const $ = (id) => document.getElementById(id);
+const pct = (x, d = 1) => (x == null || !isFinite(x) ? "—" : (x >= 0 ? "+" : "") + (100 * x).toFixed(d).replace(".", ",") + " %");
+const usd = (x, d = 0) => (x == null ? "—" : x.toLocaleString("fr-FR", { maximumFractionDigits: d, minimumFractionDigits: d }) + " $");
+const cls = (x) => (x > 0 ? "pos" : x < 0 ? "neg" : "mut");
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const tParis = (iso) => new Date(iso).toLocaleString("fr-FR", { timeZone: "Europe/Paris", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+
+async function getJSON(urls) {
+  for (const u of urls) { try { const r = await fetch(u + "?t=" + Date.now(), { cache: "no-store" }); if (r.ok) return await r.json(); } catch (e) {} }
+  return null;
+}
+
+function line(svg, tipEl, pts, fmtY, label) {
+  const W = svg.clientWidth || 800, H = 220, P = { l: 52, r: 12, t: 12, b: 24 };
+  if (!pts.length) { svg.innerHTML = `<text x="12" y="30" fill="#7d7c75" font-size="12">${label}</text>`; return; }
+  const ys = pts.map((p) => p[1]); let lo = Math.min(...ys), hi = Math.max(...ys); if (hi - lo < 1e-9) { hi += 0.01; lo -= 0.01; }
+  const pad = (hi - lo) * 0.08; lo -= pad; hi += pad;
+  const x = (i) => P.l + (pts.length === 1 ? 0.5 : i / (pts.length - 1)) * (W - P.l - P.r);
+  const y = (v) => P.t + (1 - (v - lo) / (hi - lo)) * (H - P.t - P.b);
+  let g = "";
+  for (let k = 0; k <= 4; k++) { const v = lo + (k / 4) * (hi - lo); g += `<line x1="${P.l}" x2="${W - P.r}" y1="${y(v)}" y2="${y(v)}" stroke="#262b28"/><text x="${P.l - 8}" y="${y(v) + 4}" fill="#7d7c75" font-size="10.5" text-anchor="end">${fmtY(v)}</text>`; }
+  const d = pts.map((p, i) => (i ? "L" : "M") + x(i).toFixed(1) + " " + y(p[1]).toFixed(1)).join("");
+  const first = pts[0][0], last = pts[pts.length - 1][0];
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.innerHTML = g + `<path d="${d}" fill="none" stroke="#3987e5" stroke-width="2" stroke-linejoin="round"/>` +
+    `<text x="${P.l}" y="${H - 6}" fill="#7d7c75" font-size="10.5">${first}</text><text x="${W - P.r}" y="${H - 6}" fill="#7d7c75" font-size="10.5" text-anchor="end">${last}</text>` +
+    `<line id="${svg.id}-x" y1="${P.t}" y2="${H - P.b}" stroke="#7d7c75" stroke-dasharray="3 3" visibility="hidden"/><circle id="${svg.id}-c" r="4" fill="#3987e5" stroke="#121514" stroke-width="2" visibility="hidden"/>`;
+  svg.onmousemove = (ev) => {
+    const r = svg.getBoundingClientRect(); const fx = ((ev.clientX - r.left) / r.width) * W;
+    const i = Math.max(0, Math.min(pts.length - 1, Math.round(((fx - P.l) / (W - P.l - P.r)) * (pts.length - 1))));
+    const cx = x(i), cy = y(pts[i][1]);
+    const xl = $(svg.id + "-x"), c = $(svg.id + "-c"); xl.setAttribute("x1", cx); xl.setAttribute("x2", cx); xl.setAttribute("visibility", "visible");
+    c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("visibility", "visible");
+    tipEl.style.display = "block"; tipEl.innerHTML = `${pts[i][0]} · <b>${fmtY(pts[i][1])}</b>`;
+    tipEl.style.left = Math.min(r.width - 150, (cx / W) * r.width + 10) + "px"; tipEl.style.top = "10px";
+  };
+  svg.onmouseleave = () => { tipEl.style.display = "none"; $(svg.id + "-x")?.setAttribute("visibility", "hidden"); $(svg.id + "-c")?.setAttribute("visibility", "hidden"); };
+}
+
+function nextSession() {
+  const ny = new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
+  const d = new Date(ny); const mins = ny.getHours() * 60 + ny.getMinutes();
+  if (mins >= 960 || d.getDay() === 0 || d.getDay() === 6) { do { d.setDate(d.getDate() + 1); } while (d.getDay() === 0 || d.getDay() === 6); }
+  return d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
+}
+
+function render(D, RP) {
+  const age = (Date.now() - new Date(D.updated)) / 60000;
+  $("upd").textContent = "mis à jour " + tParis(D.updated);
+  if (age > 90) $("live").classList.add("stale");
+  const r = D.equity_live / D.capital - 1;
+  $("eq").textContent = usd(D.equity_live); $("eqs").innerHTML = `<span class="${cls(r)}">${pct(r, 2)}</span> depuis le ${new Date(D.started_at).toLocaleDateString("fr-FR")} · départ ${usd(D.capital)}`;
+  const T = D.today;
+  if (T) {
+    const ret = T.pnl / D.equity;
+    $("td").innerHTML = `<span class="${cls(T.pnl)}">${usd(T.pnl)}</span>`;
+    $("tds").textContent = `${T.positions.length} ventes · ${T.closed ? "séance soldée" : "en cours"} · ${pct(ret, 2)}`;
+    $("dayl").textContent = new Date(T.day + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }) + (T.selection ? ` · ${T.selection.candidates} gaps ≥ 3 % parmi ${T.selection.scanned} actions` : "");
+  } else { $("td").textContent = "—"; $("tds").textContent = "aucune séance encore"; }
+  const H = D.history || [];
+  $("ns").textContent = H.length;
+  const wins = H.filter((h) => h.pnl > 0).length;
+  $("nss").textContent = H.length ? `${wins} gagnantes · ${H.length - wins} perdantes` : "première séance à venir";
+  $("nx").textContent = nextSession(); $("nxs").textContent = "scan 15:25 · vente 15:30 · rachat 22:00 (Paris)";
+
+  const P = T ? T.positions : [];
+  const sel = T && T.selection ? Object.fromEntries(T.selection.picked.map((p) => [p.sym, p])) : {};
+  $("pos").innerHTML = P.length ? `<table><thead><tr><th>Action</th><th class="num">Gap 9:25</th><th class="num">Vendu à</th><th class="num">Stop</th><th class="num">Dernier / racheté</th><th class="num">Résultat</th><th>Statut</th><th>Actualité</th></tr></thead><tbody>` +
+    P.sort((a, b) => b.gap - a.gap).map((p) => {
+      const s = sel[p.sym] || {}; const nw = (s.news || [])[0];
+      const st = p.status === "stop" ? `<span class="badge stop">stop ${p.exit_time}</span>` : p.status === "ouverte" ? `<span class="badge open">ouverte</span>` : `<span class="badge close">rachetée ${p.exit_time}</span>`;
+      const tags = (s.themes || []).map((t) => `<span class="tag">${esc(t)}</span>`).join("");
+      return `<tr><td><b>${esc(p.sym)}</b></td><td class="num">${pct(p.gap)}</td><td class="num">${p.entry.toFixed(2)}</td><td class="num mut">${p.stop.toFixed(2)}</td><td class="num">${(p.exit ?? p.last).toFixed(2)}</td><td class="num ${cls(p.pnl)}">${usd(p.pnl)} <span class="mut">${pct(p.ret)}</span></td><td>${st}</td><td class="wrapcell">${tags}${nw ? `<a href="${esc(nw.link)}" target="_blank" rel="noopener">${esc(nw.title)}</a>` : '<span class="mut">pas de titre récent</span>'}</td></tr>`;
+    }).join("") + "</tbody></table>"
+    : `<div class="empty">${T && T.selection ? "Aucun gap éligible ce jour-là." : "Pas encore de séance : le premier scan aura lieu à 9:25 heure de New York (15:25 à Paris)."}</div>`;
+
+  const R = T && T.selection ? [...(T.selection.rejected || []), ...(T.skipped || [])] : [];
+  $("rej").innerHTML = R.length ? `<table><thead><tr><th>Action</th><th class="num">Gap</th><th>Raison</th><th>Titre</th></tr></thead><tbody>` +
+    R.map((x) => `<tr><td><b>${esc(x.sym)}</b></td><td class="num">${x.gap != null ? pct(x.gap) : "—"}</td><td><span class="tag warn">${esc(x.why)}</span></td><td class="wrapcell">${x.news && x.news[0] ? `<a href="${esc(x.news[0].link)}" target="_blank" rel="noopener">${esc(x.news[0].title)}</a>` : ""}</td></tr>`).join("") + "</tbody></table>"
+    : `<div class="empty">Rien d'écarté pour l'instant.</div>`;
+
+  const pts = [[D.started_at.slice(0, 10), D.capital], ...H.map((h) => [h.day, h.equity])];
+  line($("hsvg"), $("htip"), pts, (v) => usd(v), "");
+  $("hist").innerHTML = H.length ? `<table><thead><tr><th>Séance</th><th class="num">Ventes</th><th class="num">Stops</th><th class="num">Résultat</th><th class="num">Capital</th></tr></thead><tbody>` +
+    [...H].reverse().slice(0, 20).map((h) => `<tr><td>${h.day}</td><td class="num">${h.trades}</td><td class="num">${h.stops}</td><td class="num ${cls(h.pnl)}">${usd(h.pnl)} <span class="mut">${pct(h.ret, 2)}</span></td><td class="num">${usd(h.equity)}</td></tr>`).join("") + "</tbody></table>"
+    : `<div class="empty">L'historique commencera après la première séance soldée.</div>`;
+
+  const B = D.backtest || {}, S = B.samples || {};
+  const h1 = S.hourly_premarket || {}, rc = S.recent_5m || {}, d10 = S.daily_10y_upper_bound || {}, bs = B.bootstrap_6m || {};
+  const card = (k, v, s, c = "") => `<div class="card"><div class="k">${k}</div><div class="v ${c}">${v}</div><div class="s">${s}</div></div>`;
+  $("bt").innerHTML =
+    card("2,9 ans · réaliste", pct(h1.cagr, 0) + "/an", `Sharpe ${(h1.sharpe || 0).toFixed(2).replace(".", ",")} · pire repli ${pct(h1.maxdd, 0)} · ${h1.trades || "—"} trades`, cls(h1.cagr)) +
+    card("Rejeu des 40 dernières séances", RP ? pct(RP.total) : "—", RP ? `code du bot · ${RP.trades} ventes · pire repli ${pct(RP.maxdd, 0)}` : "", RP ? cls(RP.total) : "") +
+    card("Simulation 6 mois", pct(bs.median, 0), `médiane · 1 chance sur ${bs.p_loss ? Math.round(1 / bs.p_loss) : "—"} de perdre · 5 % pire : ${pct(bs.p5, 0)}`, cls(bs.median)) +
+    card("Frais doublés", pct((B.costs || {})["20"]?.cagr, 0) + "/an", `triplés : ${pct((B.costs || {})["30"]?.cagr, 0)}/an — la stratégie vit de frais bas`, cls((B.costs || {})["20"]?.cagr));
+  const curve = (B.curve || []).map((p) => [p[0], (p[1] - 1)]);
+  line($("bsvg"), $("btip"), curve, (v) => pct(v, 0), "backtest indisponible");
+  const yrs = B.years ? Object.entries(B.years).map(([y, v]) => `${y} ${pct(v, 0)}`).join(" · ") : "";
+  const y10 = B.years_10y ? Object.entries(B.years_10y).map(([y, v]) => `${y} ${pct(v, 0)}`).join(" · ") : "";
+  $("btn").innerHTML = `Courbe : backtest du 29/12/2023 au 25/11/2026 en bougies d'une heure, sélection sur le cours de pré-séance de 9:00 (ce qu'un trader pouvait réellement savoir), vente à l'ouverture, frais 0,10 % aller-retour. Par année : ${yrs}. Sur 10 ans en données journalières (sélection sur l'ouverture officielle, donc optimiste) : ${pct(d10.cagr, 0)}/an, années ${y10}.`;
+  $("warn").innerHTML = "<b>À lire avant tout :</b> stratégie uniquement vendeuse, exposée aux envolées brutales (« short squeeze ») ; le stop à +15 % limite la casse mais un titre suspendu peut rouvrir bien au-dessus. Les gains reposent sur une minorité de grosses chutes et fondent si les frais dépassent ~0,20 % aller-retour. En réel il faudrait un courtier qui prête les titres (vente à découvert) dès 9:28, ce que ce test ne vérifie pas. Les données excluent les sociétés disparues de la cote.";
+}
+
+(async () => {
+  const [D, RP] = await Promise.all([getJSON(URLS), getJSON(REPLAY)]);
+  if (!D) { $("upd").textContent = "données indisponibles"; $("live").classList.add("stale"); return; }
+  render(D, RP);
+  addEventListener("resize", () => render(D, RP));
+  setInterval(async () => { const n = await getJSON(URLS); if (n) render(n, RP); }, 120000);
+})();
+</script>
+</body>
+</html>

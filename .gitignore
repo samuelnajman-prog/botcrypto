@@ -6,3 +6,5 @@ data/*.json
 !state/
 data/*.csv.gz
 data/*.parquet
+
+data/stocks/

@@ -1,0 +1,47 @@
+# Bot n°2 — day trading actions US (paper). Passages toutes les 30 min pendant la séance de
+# New York (heure d'été et d'hiver couvertes) et un passage de clôture.
+# Le bot rejoue tout depuis les bougies 5 min : un passage manqué ou en retard ne change rien.
+name: stocks
+on:
+  schedule:
+    - cron: "5,35 13-21 * * 1-5"
+    - cron: "20 22 * * 1-5"
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths:
+      - "stocks/**"
+      - ".github/workflows/stocks.yml"
+permissions:
+  contents: write
+concurrency:
+  group: botcrypto-state
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Tests du bot n°2
+        run: python -m pytest -q tests/test_stocks.py
+      - name: Liste des actions liquides (si plus vieille que 3 jours)
+        continue-on-error: true
+        run: python main.py stocks universe --if-older 3
+      - name: Bot n°2 actions
+        run: |
+          python main.py stocks run | tee /tmp/stocks.txt
+          echo '```' >> "$GITHUB_STEP_SUMMARY"; cat /tmp/stocks.txt >> "$GITHUB_STEP_SUMMARY"; echo '```' >> "$GITHUB_STEP_SUMMARY"
+      - name: Commit
+        run: |
+          git config user.name "stocks-bot"
+          git config user.email "stocks-bot@users.noreply.github.com"
+          git add state/stocks/ docs/stocks.json stocks/universe.json
+          if git diff --cached --quiet; then echo "rien à committer"; exit 0; fi
+          git commit -m "stocks: $(date -u +'%F %H:%M')"
+          for i in 1 2 3 4; do git pull --rebase origin main && git push && break; sleep 7; done

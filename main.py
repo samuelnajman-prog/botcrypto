@@ -9,7 +9,8 @@
   python main.py paper reset [--capital 10000]
   python main.py paper loop                 tourne en continu, 1 exécution/jour à 00:10 UTC
   python main.py dashboard                  régénère le tableau de bord du README
-  python main.py day run | status           bot n°2 (day trading), à lancer toutes les heures
+  python main.py stocks run | status        bot n°2 (day trading actions US), à lancer pendant la séance
+  python main.py stocks universe            rafraîchit la liste des actions liquides (hebdomadaire)
 """
 from __future__ import annotations
 
@@ -82,9 +83,19 @@ def cmd_dashboard(_):
     print(build())
 
 
-def cmd_day(a):
-    from daytrade import live
-    print(live.run_once(capital=a.capital) if a.action == "run" else live.status())
+def cmd_stocks(a):
+    from stocks import live
+    if a.action == "run":
+        live.run_once()
+        print(live.status())
+    elif a.action == "universe":
+        if a.if_older is not None and live.universe_age_days() < a.if_older:
+            print(f"univers à jour ({live.universe_age_days():.1f} j)")
+            return
+        u = live.refresh_universe()
+        print(f"{len(u['symbols'])} actions liquides sur {u['scanned']}")
+    else:
+        print(live.status())
 
 
 def main():
@@ -96,10 +107,10 @@ def main():
     b.set_defaults(fn=cmd_backtest)
     sp.add_parser("signals").set_defaults(fn=cmd_signals)
     sp.add_parser("dashboard").set_defaults(fn=cmd_dashboard)
-    dp = sp.add_parser("day")
-    dp.add_argument("action", choices=["run", "status"])
-    dp.add_argument("--capital", type=float, default=10_000.0)
-    dp.set_defaults(fn=cmd_day)
+    dp = sp.add_parser("stocks")
+    dp.add_argument("action", choices=["run", "status", "universe"])
+    dp.add_argument("--if-older", type=float, default=None, help="universe : seulement si plus vieux que N jours")
+    dp.set_defaults(fn=cmd_stocks)
     pp = sp.add_parser("paper")
     pp.add_argument("action", choices=["run", "status", "reset", "loop"])
     pp.add_argument("--capital", type=float, default=10_000.0)
