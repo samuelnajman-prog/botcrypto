@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-26T23:12:59+00:00",
- "day": "2026-11-26",
+ "generated_at": "2026-11-27T07:06:06+00:00",
+ "day": "2026-11-27",
  "initial": 10000.0,
  "cash": 10000.0,
  "peak": 10000.0,
@@ -11,10 +11,13 @@
   "wins": 0,
   "days_traded": 0
  },
+ "equity_open": 10000.0,
  "rules": {
   "k": 0.8,
-  "ma": 10,
-  "target_vol": 0.03,
+  "ma": 20,
+  "target_vol": 0.06,
+  "cap": 0.34,
+  "lev": 1.5,
   "fee": 0.0006,
   "slip": 0.0003,
   "assets": [
@@ -24,98 +27,99 @@
    "BNB",
    "XRP",
    "DOGE"
-  ]
+  ],
+  "accounting": "margin"
  },
  "orders": [
   {
-   "open": 60458.0,
-   "level": 63072.10400000001,
-   "ma10": 61688.447,
-   "vol14": 0.026975347836890533,
-   "size_frac": 1.0,
-   "prev_range": 3267.6300000000047,
+   "open": 60577.18,
+   "level": 61943.083999999995,
+   "ma10": 66031.7695,
+   "vol14": 0.026600652259004102,
+   "size_frac": 0.34,
+   "prev_range": 1707.3799999999974,
    "active": false,
    "reason": "tendance baissière (ouverture sous la moyenne 10 jours)",
-   "notional": 1666.67,
+   "notional": 3400.0,
    "filled": null,
    "asset": "BTC",
    "symbol": "BTCUSDT",
-   "last_close_5m": 60460.88
+   "last_close_5m": 61786.3
   },
   {
-   "open": 1692.65,
-   "level": 1764.5380000000002,
-   "ma10": 1729.6520000000005,
-   "vol14": 0.036541954761383395,
-   "size_frac": 0.8209741431704478,
-   "prev_range": 89.86000000000013,
+   "open": 1689.85,
+   "level": 1739.4979999999998,
+   "ma10": 1857.6525000000001,
+   "vol14": 0.03663915375876572,
+   "size_frac": 0.34,
+   "prev_range": 62.059999999999945,
    "active": false,
    "reason": "tendance baissière (ouverture sous la moyenne 10 jours)",
-   "notional": 1368.29,
+   "notional": 3400.0,
    "filled": null,
    "asset": "ETH",
    "symbol": "ETHUSDT",
-   "last_close_5m": 1689.18
+   "last_close_5m": 1735.65
   },
   {
-   "open": 70.47,
-   "level": 74.654,
-   "ma10": 71.56700000000001,
-   "vol14": 0.03985926063712957,
-   "size_frac": 0.7526481806352047,
-   "prev_range": 5.22999999999999,
+   "open": 71.03,
+   "level": 72.822,
+   "ma10": 75.969,
+   "vol14": 0.0401033197837655,
+   "size_frac": 0.34,
+   "prev_range": 2.240000000000009,
    "active": false,
    "reason": "tendance baissière (ouverture sous la moyenne 10 jours)",
-   "notional": 1254.41,
+   "notional": 3400.0,
    "filled": null,
    "asset": "SOL",
    "symbol": "SOLUSDT",
-   "last_close_5m": 70.99
+   "last_close_5m": 73.12
   },
   {
-   "open": 554.03,
-   "level": 577.3499999999999,
-   "ma10": 566.0,
-   "vol14": 0.03156102255467156,
-   "size_frac": 0.9505395444026733,
-   "prev_range": 29.149999999999977,
+   "open": 554.22,
+   "level": 568.9960000000001,
+   "ma10": 605.6685000000001,
+   "vol14": 0.031247292427065816,
+   "size_frac": 0.34,
+   "prev_range": 18.470000000000027,
    "active": false,
    "reason": "tendance baissière (ouverture sous la moyenne 10 jours)",
-   "notional": 1584.23,
+   "notional": 3400.0,
    "filled": null,
    "asset": "BNB",
    "symbol": "BNBUSDT",
-   "last_close_5m": 553.29
+   "last_close_5m": 566.4
   },
   {
-   "open": 0.9378,
-   "level": 0.9857999999999999,
-   "ma10": 0.9442599999999999,
-   "vol14": 0.03825502252122023,
-   "size_frac": 0.784210752545208,
-   "prev_range": 0.05999999999999994,
+   "open": 0.9439,
+   "level": 0.9679,
+   "ma10": 0.9906149999999998,
+   "vol14": 0.038416210344830296,
+   "size_frac": 0.34,
+   "prev_range": 0.030000000000000027,
    "active": false,
    "reason": "tendance baissière (ouverture sous la moyenne 10 jours)",
-   "notional": 1307.02,
+   "notional": 3400.0,
    "filled": null,
    "asset": "XRP",
    "symbol": "XRPUSDT",
-   "last_close_5m": 0.9436
+   "last_close_5m": 0.9742
   },
   {
-   "open": 0.05605,
-   "level": 0.05937800000000001,
-   "ma10": 0.05689100000000001,
-   "vol14": 0.039173714854655095,
-   "size_frac": 0.7658196347042393,
-   "prev_range": 0.004160000000000004,
+   "open": 0.05647,
+   "level": 0.057662,
+   "ma10": 0.0609955,
+   "vol14": 0.03952896820558761,
+   "size_frac": 0.34,
+   "prev_range": 0.0014899999999999983,
    "active": false,
    "reason": "tendance baissière (ouverture sous la moyenne 10 jours)",
-   "notional": 1276.37,
+   "notional": 3400.0,
    "filled": null,
    "asset": "DOGE",
    "symbol": "DOGEUSDT",
-   "last_close_5m": 0.05633
+   "last_close_5m": 0.05819
   }
  ],
  "equity_history": [
@@ -123,13 +127,18 @@
    "ts": "2026-11-26T23:12:59+00:00",
    "equity": 10000.0,
    "btc": 60460.88
+  },
+  {
+   "ts": "2026-11-27T07:06:06+00:00",
+   "equity": 10000.0,
+   "btc": 61786.3
   }
  ],
  "trades": [],
  "backtest": {
-  "oos_cagr": 0.106,
-  "oos_maxdd": -0.086,
-  "oos_sharpe": 1.09,
-  "trades_per_year": 262
+  "oos_cagr": 0.216,
+  "oos_maxdd": -0.275,
+  "oos_sharpe": 0.94,
+  "trades_per_year": 269
  }
 }
