@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-27T20:54:40+00:00",
+"updated": "2026-11-28T03:10:42+00:00",
 "started_at": "2026-11-27T08:28:08+00:00",
 "config": {
 "capital": 25000.0,
@@ -18,12 +18,21 @@
 "model": false
 },
 "capital": 25000.0,
-"equity": 25000.0,
-"equity_live": 25359.18,
-"history": [],
+"equity": 25378.3,
+"equity_live": 25378.3,
+"history": [
+{
+"day": "2026-11-27",
+"trades": 15,
+"pnl": 378.3,
+"ret": 0.01513,
+"equity": 25378.3,
+"stops": 0
+}
+],
 "today": {
 "day": "2026-11-27",
-"closed": false,
+"closed": true,
 "positions": [
 {
 "sym": "XP",
@@ -32,13 +41,13 @@
 "entry": 17.2848,
 "stop": 19.8775,
 "gap": 0.2106,
-"status": "ouverte",
-"exit": null,
-"exit_time": null,
-"last": 17.4,
-"fees": 0.48,
-"pnl": -11.54,
-"ret": -0.00666
+"status": "cl\u00f4ture",
+"exit": 16.9251,
+"exit_time": "15:55",
+"last": 16.92,
+"fees": 0.96,
+"pnl": 33.57,
+"ret": 0.02081
 },
 {
 "sym": "NU",
@@ -47,13 +56,13 @@
 "entry": 13.421,
 "stop": 15.4341,
 "gap": 0.1165,
-"status": "ouverte",
-"exit": null,
-"exit_time": null,
-"last": 13.12,
-"fees": 0.62,
-"pnl": 36.7,
-"ret": 0.02243
+"status": "cl\u00f4ture",
+"exit": 13.0239,
+"exit_time": "15:55",
+"last": 13.02,
+"fees": 1.24,
+"pnl": 48.0,
+"ret": 0.02959
 },
 {
 "sym": "PBR",
@@ -62,13 +71,13 @@
 "entry": 17.7047,
 "stop": 20.3604,
 "gap": 0.1103,
-"status": "ouverte",
-"exit": null,
-"exit_time": null,
-"last": 17.1477,
-"fees": 0.47,
-"pnl": 51.89,
-"ret": 0.03146
+"status": "cl\u00f4ture",
+"exit": 17.1551,
+"exit_time": "15:55",
+"last": 17.15,
+"fees": 0.94,
+"pnl": 50.72,
+"ret": 0.03104
 },
 {
 "sym": "UUUU",
@@ -77,13 +86,13 @@
 "entry": 5.6783,
 "stop": 6.53,
 "gap": 0.1017,
-"status": "ouverte",
-"exit": null,
-"exit_time": null,
+"status": "cl\u00f4ture",
+"exit": 5.7217,
+"exit_time": "15:55",
 "last": 5.72,
-"fees": 1.47,
-"pnl": -13.69,
-"ret": -0.00734
+"fees": 2.93,
+"pnl": -15.65,
+"ret": -0.00764
 },
 {
 "sym": "AAOI",
@@ -92,13 +101,13 @@
 "entry": 40.6078,
 "stop": 46.699,
 "gap": 0.0964,
-"status": "ouverte",
-"exit": null,
-"exit_time": null,
-"last": 40.8423,
-"fees": 0.35,
-"pnl": -9.96,
-"ret": -0.00577
+"status": "cl\u00f4ture",
+"exit": 40.6122,
+"exit_time": "15:55",
+"last": 40.6,
+"fees": 0.7,
+"pnl": -0.88,
+"ret": -0.00011
 },
 {
 "sym": "AXTI",
@@ -107,13 +116,13 @@
 "entry": 34.7046,
 "stop": 39.9103,
 "gap": 0.0922,
-"status": "ouverte",
-"exit": null,
-"exit_time": null,
-"last": 35.88,
-"fees": 0.35,
-"pnl": -56.77,
-"ret": -0.03387
+"status": "cl\u00f4ture",
+"exit": 35.9608,
+"exit_time": "15:55",
+"last": 35.95,
+"fees": 0.7,
+"pnl": -61.0,
+"ret": -0.0362
 },
 {
 "sym": "YPF",
@@ -122,13 +131,13 @@
 "entry": 33.7299,
 "stop": 38.7894,
 "gap": 0.089,
-"status": "ouverte",
-"exit": null,
-"exit_time": null,
-"last": 32.7,
-"fees": 0.35,
-"pnl": 50.12,
-"ret": 0.03053
+"status": "cl\u00f4ture",
+"exit": 33.3352,
+"exit_time": "15:55",
+"last": 33.3252,
+"fees": 0.7,
+"pnl": 18.64,
+"ret": 0.0117
 },
 {
 "sym": "LITE",
@@ -137,13 +146,13 @@
 "entry": 514.6256,
 "stop": 591.8194,
 "gap": 0.0869,
-"status": "ouverte",
-"exit": null,
-"exit_time": null,
-"last": 512.3001,
-"fees": 0.35,
-"pnl": 6.63,
-"ret": 0.00452
+"status": "cl\u00f4ture",
+"exit": 512.6337,
+"exit_time": "15:40",
+"last": 512.48,
+"fees": 0.7,
+"pnl": 5.28,
+"ret": 0.00387
 },
 {
 "sym": "VALE",
@@ -152,13 +161,13 @@
 "entry": 10.5468,
 "stop": 12.1289,
 "gap": 0.0829,
-"status": "ouverte",
-"exit": null,
-"exit_time": null,
-"last": 10.33,
-"fees": 0.79,
-"pnl": 33.25,
-"ret": 0.02056
+"status": "cl\u00f4ture",
+"exit": 10.2931,
+"exit_time": "15:58",
+"last": 10.29,
+"fees": 1.57,
+"pnl": 38.26,
+"ret": 0.02405
 },
 {
 "sym": "AEHR",
@@ -167,13 +176,13 @@
 "entry": 44.8066,
 "stop": 51.5275,
 "gap": 0.0837,
-"status": "ouverte",
-"exit": null,
-"exit_time": null,
+"status": "cl\u00f4ture",
+"exit": 43.6131,
+"exit_time": "15:55",
 "last": 43.6,
-"fees": 0.35,
-"pnl": 44.29,
-"ret": 0.02693
+"fees": 0.7,
+"pnl": 43.46,
+"ret": 0.02664
 },
 {
 "sym": "UEC",
@@ -182,13 +191,13 @@
 "entry": 6.0282,
 "stop": 6.9324,
 "gap": 0.0826,
-"status": "ouverte",
-"exit": null,
-"exit_time": null,
-"last": 6.0397,
-"fees": 1.38,
-"pnl": -4.55,
-"ret": -0.00191
+"status": "cl\u00f4ture",
+"exit": 5.9618,
+"exit_time": "15:55",
+"last": 5.96,
+"fees": 2.76,
+"pnl": 15.57,
+"ret": 0.01101
 },
 {
 "sym": "GLXY",
@@ -197,13 +206,13 @@
 "entry": 12.5762,
 "stop": 14.4627,
 "gap": 0.0813,
-"status": "ouverte",
-"exit": null,
-"exit_time": null,
-"last": 11.71,
-"fees": 0.66,
-"pnl": 113.68,
-"ret": 0.06888
+"status": "cl\u00f4ture",
+"exit": 11.7035,
+"exit_time": "15:55",
+"last": 11.7,
+"fees": 1.32,
+"pnl": 113.88,
+"ret": 0.06939
 },
 {
 "sym": "PURR",
@@ -212,13 +221,13 @@
 "entry": 8.0076,
 "stop": 9.2087,
 "gap": 0.0796,
-"status": "ouverte",
-"exit": null,
-"exit_time": null,
-"last": 7.77,
-"fees": 1.04,
-"pnl": 48.38,
-"ret": 0.02967
+"status": "cl\u00f4ture",
+"exit": 7.8023,
+"exit_time": "15:45",
+"last": 7.8,
+"fees": 2.08,
+"pnl": 40.62,
+"ret": 0.02564
 },
 {
 "sym": "SHAZ",
@@ -227,13 +236,13 @@
 "entry": 17.8147,
 "stop": 20.4869,
 "gap": 0.0796,
-"status": "ouverte",
-"exit": null,
-"exit_time": null,
-"last": 17.0,
-"fees": 0.47,
-"pnl": 75.3,
-"ret": 0.04573
+"status": "cl\u00f4ture",
+"exit": 17.2052,
+"exit_time": "15:55",
+"last": 17.2,
+"fees": 0.93,
+"pnl": 55.75,
+"ret": 0.03421
 },
 {
 "sym": "MRVL",
@@ -242,13 +251,13 @@
 "entry": 139.3682,
 "stop": 160.2734,
 "gap": 0.0762,
-"status": "ouverte",
-"exit": null,
-"exit_time": null,
-"last": 139.75,
-"fees": 0.35,
-"pnl": -4.55,
-"ret": -0.00274
+"status": "cl\u00f4ture",
+"exit": 140.0247,
+"exit_time": "15:55",
+"last": 139.9827,
+"fees": 0.7,
+"pnl": -7.92,
+"ret": -0.00471
 }
 ],
 "skipped": [],
@@ -849,7 +858,7 @@
 "selected_at": "2026-11-27T15:33:39+00:00",
 "fetched": 1603
 },
-"pnl": 359.18
+"pnl": 378.3
 },
 "backtest": {
 "samples": {
@@ -3779,11 +3788,11 @@
 "preview": null,
 "learn": {
 "champion": "N15_stop15_gap3_liq50",
-"sessions": 0,
-"live_rows": 0,
-"model_rows": null,
-"last_train": null,
-"since_change": 0,
+"sessions": 1,
+"live_rows": 80,
+"model_rows": 34101,
+"last_train": "2026-11-27",
+"since_change": 1,
 "rules": {
 "min_live": 60,
 "cooldown": 40,
@@ -3793,60 +3802,75 @@
 "journal": [],
 "board": [
 {
-"name": "N10_stop25_gap5_liq50",
-"live_ret": null,
-"hist_cagr": 0.7652971622064615,
-"hist_sharpe": 1.604297482135435
+"name": "N10_stop15_gap3_liq100",
+"live_ret": 0.019072545866112733,
+"hist_cagr": 0.47516891438350584,
+"hist_sharpe": 1.200692701086956
 },
 {
-"name": "N20_stop25_gap5_liq50",
-"live_ret": null,
-"hist_cagr": 0.49431352209363144,
-"hist_sharpe": 1.6041402192099223
+"name": "N10_stop15_gap5_liq100",
+"live_ret": 0.019072545866112733,
+"hist_cagr": 0.4611222142200806,
+"hist_sharpe": 1.2676576120277616
 },
 {
-"name": "N15_stop25_gap5_liq50",
-"live_ret": null,
-"hist_cagr": 0.5738027612699375,
-"hist_sharpe": 1.5731418585555441
-},
-{
-"name": "N20_stop15_gap5_liq50",
-"live_ret": null,
-"hist_cagr": 0.44680425310355054,
-"hist_sharpe": 1.5310354364480623
-},
-{
-"name": "N15_stop15_gap5_liq50",
-"live_ret": null,
-"hist_cagr": 0.521749954114499,
-"hist_sharpe": 1.5187123673031278
-},
-{
-"name": "N10_stop15_gap5_liq50",
-"live_ret": null,
-"hist_cagr": 0.6459529334978327,
-"hist_sharpe": 1.4838407004340015
-},
-{
-"name": "N10_stop25_gap3_liq50",
-"live_ret": null,
-"hist_cagr": 0.6654737114512672,
-"hist_sharpe": 1.4096240298101983
+"name": "N10_stop25_gap3_liq100",
+"live_ret": 0.019072545866112733,
+"hist_cagr": 0.5170037116117652,
+"hist_sharpe": 1.2432539596334542
 },
 {
 "name": "N10_stop25_gap5_liq100",
-"live_ret": null,
+"live_ret": 0.019072545866112733,
 "hist_cagr": 0.5190060939319454,
 "hist_sharpe": 1.3344865789722
 },
 {
 "name": "N15_stop15_gap3_liq50",
-"live_ret": null,
+"live_ret": 0.01555319208482242,
 "hist_cagr": 0.45682580436730325,
 "hist_sharpe": 1.2761852095780628
+},
+{
+"name": "N15_stop15_gap5_liq50",
+"live_ret": 0.01555319208482242,
+"hist_cagr": 0.521749954114499,
+"hist_sharpe": 1.5187123673031278
+},
+{
+"name": "N15_stop25_gap3_liq50",
+"live_ret": 0.01555319208482242,
+"hist_cagr": 0.5008784616327875,
+"hist_sharpe": 1.3274363526504103
+},
+{
+"name": "N15_stop25_gap5_liq50",
+"live_ret": 0.01555319208482242,
+"hist_cagr": 0.5738027612699375,
+"hist_sharpe": 1.5731418585555441
 }
 ],
-"model_top": null
+"model_top": [
+[
+"gap",
+0.00314
+],
+[
+"spyg",
+0.00244
+],
+[
+"ncand",
+0.00215
+],
+[
+"gapatr",
+-0.00184
+],
+[
+"gap2",
+-0.00174
+]
+]
 }
 }

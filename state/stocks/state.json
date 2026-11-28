@@ -2,7 +2,7 @@
  "version": 1,
  "started_at": "2026-11-27T08:28:08+00:00",
  "capital": 25000.0,
- "equity": 25000.0,
+ "equity": 25378.3,
  "sessions": {
   "2026-11-27": {
    "selection": {
@@ -609,11 +609,11 @@
      "entry": 17.2848,
      "stop": 19.8775,
      "gap": 0.2106,
-     "status": "ouverte",
-     "exit": null,
-     "exit_time": null,
-     "last": 17.4,
-     "fees": 0.48
+     "status": "cl\u00f4ture",
+     "exit": 16.9251,
+     "exit_time": "15:55",
+     "last": 16.92,
+     "fees": 0.96
     },
     "NU": {
      "shares": 124,
@@ -621,11 +621,11 @@
      "entry": 13.421,
      "stop": 15.4341,
      "gap": 0.1165,
-     "status": "ouverte",
-     "exit": null,
-     "exit_time": null,
-     "last": 13.12,
-     "fees": 0.62
+     "status": "cl\u00f4ture",
+     "exit": 13.0239,
+     "exit_time": "15:55",
+     "last": 13.02,
+     "fees": 1.24
     },
     "PBR": {
      "shares": 94,
@@ -633,11 +633,11 @@
      "entry": 17.7047,
      "stop": 20.3604,
      "gap": 0.1103,
-     "status": "ouverte",
-     "exit": null,
-     "exit_time": null,
-     "last": 17.1477,
-     "fees": 0.47
+     "status": "cl\u00f4ture",
+     "exit": 17.1551,
+     "exit_time": "15:55",
+     "last": 17.15,
+     "fees": 0.94
     },
     "UUUU": {
      "shares": 293,
@@ -645,11 +645,11 @@
      "entry": 5.6783,
      "stop": 6.53,
      "gap": 0.1017,
-     "status": "ouverte",
-     "exit": null,
-     "exit_time": null,
+     "status": "cl\u00f4ture",
+     "exit": 5.7217,
+     "exit_time": "15:55",
      "last": 5.72,
-     "fees": 1.47
+     "fees": 2.93
     },
     "AAOI": {
      "shares": 41,
@@ -657,11 +657,11 @@
      "entry": 40.6078,
      "stop": 46.699,
      "gap": 0.0964,
-     "status": "ouverte",
-     "exit": null,
-     "exit_time": null,
-     "last": 40.8423,
-     "fees": 0.35
+     "status": "cl\u00f4ture",
+     "exit": 40.6122,
+     "exit_time": "15:55",
+     "last": 40.6,
+     "fees": 0.7
     },
     "AXTI": {
      "shares": 48,
@@ -669,11 +669,11 @@
      "entry": 34.7046,
      "stop": 39.9103,
      "gap": 0.0922,
-     "status": "ouverte",
-     "exit": null,
-     "exit_time": null,
-     "last": 35.88,
-     "fees": 0.35
+     "status": "cl\u00f4ture",
+     "exit": 35.9608,
+     "exit_time": "15:55",
+     "last": 35.95,
+     "fees": 0.7
     },
     "YPF": {
      "shares": 49,
@@ -681,11 +681,11 @@
      "entry": 33.7299,
      "stop": 38.7894,
      "gap": 0.089,
-     "status": "ouverte",
-     "exit": null,
-     "exit_time": null,
-     "last": 32.7,
-     "fees": 0.35
+     "status": "cl\u00f4ture",
+     "exit": 33.3352,
+     "exit_time": "15:55",
+     "last": 33.3252,
+     "fees": 0.7
     },
     "LITE": {
      "shares": 3,
@@ -693,11 +693,11 @@
      "entry": 514.6256,
      "stop": 591.8194,
      "gap": 0.0869,
-     "status": "ouverte",
-     "exit": null,
-     "exit_time": null,
-     "last": 512.3001,
-     "fees": 0.35
+     "status": "cl\u00f4ture",
+     "exit": 512.6337,
+     "exit_time": "15:40",
+     "last": 512.48,
+     "fees": 0.7
     },
     "VALE": {
      "shares": 157,
@@ -705,11 +705,11 @@
      "entry": 10.5468,
      "stop": 12.1289,
      "gap": 0.0829,
-     "status": "ouverte",
-     "exit": null,
-     "exit_time": null,
-     "last": 10.33,
-     "fees": 0.79
+     "status": "cl\u00f4ture",
+     "exit": 10.2931,
+     "exit_time": "15:58",
+     "last": 10.29,
+     "fees": 1.57
     },
     "AEHR": {
      "shares": 37,
@@ -717,11 +717,11 @@
      "entry": 44.8066,
      "stop": 51.5275,
      "gap": 0.0837,
-     "status": "ouverte",
-     "exit": null,
-     "exit_time": null,
+     "status": "cl\u00f4ture",
+     "exit": 43.6131,
+     "exit_time": "15:55",
      "last": 43.6,
-     "fees": 0.35
+     "fees": 0.7
     },
     "UEC": {
      "shares": 276,
@@ -729,11 +729,11 @@
      "entry": 6.0282,
      "stop": 6.9324,
      "gap": 0.0826,
-     "status": "ouverte",
-     "exit": null,
-     "exit_time": null,
-     "last": 6.0397,
-     "fees": 1.38
+     "status": "cl\u00f4ture",
+     "exit": 5.9618,
+     "exit_time": "15:55",
+     "last": 5.96,
+     "fees": 2.76
     },
     "GLXY": {
      "shares": 132,
@@ -741,11 +741,11 @@
      "entry": 12.5762,
      "stop": 14.4627,
      "gap": 0.0813,
-     "status": "ouverte",
-     "exit": null,
-     "exit_time": null,
-     "last": 11.71,
-     "fees": 0.66
+     "status": "cl\u00f4ture",
+     "exit": 11.7035,
+     "exit_time": "15:55",
+     "last": 11.7,
+     "fees": 1.32
     },
     "PURR": {
      "shares": 208,
@@ -753,11 +753,11 @@
      "entry": 8.0076,
      "stop": 9.2087,
      "gap": 0.0796,
-     "status": "ouverte",
-     "exit": null,
-     "exit_time": null,
-     "last": 7.77,
-     "fees": 1.04
+     "status": "cl\u00f4ture",
+     "exit": 7.8023,
+     "exit_time": "15:45",
+     "last": 7.8,
+     "fees": 2.08
     },
     "SHAZ": {
      "shares": 93,
@@ -765,11 +765,11 @@
      "entry": 17.8147,
      "stop": 20.4869,
      "gap": 0.0796,
-     "status": "ouverte",
-     "exit": null,
-     "exit_time": null,
-     "last": 17.0,
-     "fees": 0.47
+     "status": "cl\u00f4ture",
+     "exit": 17.2052,
+     "exit_time": "15:55",
+     "last": 17.2,
+     "fees": 0.93
     },
     "MRVL": {
      "shares": 11,
@@ -777,16 +777,36 @@
      "entry": 139.3682,
      "stop": 160.2734,
      "gap": 0.0762,
-     "status": "ouverte",
-     "exit": null,
-     "exit_time": null,
-     "last": 139.75,
-     "fees": 0.35
+     "status": "cl\u00f4ture",
+     "exit": 140.0247,
+     "exit_time": "15:55",
+     "last": 139.9827,
+     "fees": 0.7
     }
    },
-   "skipped": []
+   "skipped": [],
+   "closed": true
   }
  },
- "history": [],
- "last_run": "2026-11-27T20:54:40+00:00"
+ "history": [
+  {
+   "day": "2026-11-27",
+   "trades": 15,
+   "pnl": 378.3,
+   "ret": 0.01513,
+   "equity": 25378.3,
+   "stops": 0
+  }
+ ],
+ "last_run": "2026-11-28T03:10:42+00:00",
+ "learn": {
+  "champion": "N15_stop15_gap3_liq50",
+  "since_change": 1,
+  "journal": [],
+  "last_train": "2026-11-27",
+  "trained_at_n": 1,
+  "model_rows": 34101,
+  "sessions": 1,
+  "live_rows": 80
+ }
 }
