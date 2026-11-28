@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-27T17:29:29+00:00",
- "bar_date": "2026-11-26",
+ "generated_at": "2026-11-28T01:28:45+00:00",
+ "bar_date": "2026-11-27",
  "started_at": "2026-11-23T22:36:38+00:00",
  "initial": 10000.0,
  "cash": 10000.0,
@@ -87,15 +87,20 @@
    "equity": 10000.0,
    "btc": 59699.755000000005,
    "exposure": 0.0
+  },
+  {
+   "ts": "2026-11-28T01:28:42+00:00",
+   "equity": 10000.0,
+   "btc": 60128.604999999996,
+   "exposure": 0.0
   }
  ],
  "trades": [],
  "regime": {
   "risk_on": false,
-  "btc_close": 60577.18,
-  "ma200": 71980.10925,
+  "btc_close": 59923.1,
+  "ma200": 71870.99650000001,
   "btc_closes_199": [
-   80504.47,
    79313.61,
    81089.99,
    79113.21,
@@ -293,116 +298,117 @@
    61270.93,
    59832.0,
    60458.01,
-   60577.18
+   60577.18,
+   59923.1
   ]
  },
  "forecasts": [
   {
    "asset": "INJ",
    "symbol": "INJUSDT",
-   "forecast": -0.427,
+   "forecast": -0.417,
    "buyable": false
   },
   {
    "asset": "PEPE",
    "symbol": "PEPEUSDT",
-   "forecast": -0.751,
-   "buyable": false
-  },
-  {
-   "asset": "TRX",
-   "symbol": "TRXUSDT",
-   "forecast": -0.76,
+   "forecast": -0.74,
    "buyable": false
   },
   {
    "asset": "NEAR",
    "symbol": "NEARUSDT",
-   "forecast": -0.774,
+   "forecast": -0.795,
+   "buyable": false
+  },
+  {
+   "asset": "TRX",
+   "symbol": "TRXUSDT",
+   "forecast": -0.82,
    "buyable": false
   },
   {
    "asset": "LINK",
    "symbol": "LINKUSDT",
-   "forecast": -1.258,
+   "forecast": -1.206,
    "buyable": false
   },
   {
    "asset": "UNI",
    "symbol": "UNIUSDT",
-   "forecast": -1.285,
-   "buyable": false
-  },
-  {
-   "asset": "AVAX",
-   "symbol": "AVAXUSDT",
-   "forecast": -1.413,
-   "buyable": false
-  },
-  {
-   "asset": "AAVE",
-   "symbol": "AAVEUSDT",
-   "forecast": -1.506,
-   "buyable": false
-  },
-  {
-   "asset": "SUI",
-   "symbol": "SUIUSDT",
-   "forecast": -1.529,
+   "forecast": -1.267,
    "buyable": false
   },
   {
    "asset": "LTC",
    "symbol": "LTCUSDT",
-   "forecast": -1.573,
+   "forecast": -1.41,
+   "buyable": false
+  },
+  {
+   "asset": "AVAX",
+   "symbol": "AVAXUSDT",
+   "forecast": -1.447,
+   "buyable": false
+  },
+  {
+   "asset": "AAVE",
+   "symbol": "AAVEUSDT",
+   "forecast": -1.54,
+   "buyable": false
+  },
+  {
+   "asset": "SUI",
+   "symbol": "SUIUSDT",
+   "forecast": -1.551,
    "buyable": false
   },
   {
    "asset": "BNB",
    "symbol": "BNBUSDT",
-   "forecast": -1.612,
+   "forecast": -1.637,
    "buyable": false
   },
   {
    "asset": "BTC",
    "symbol": "BTCUSDT",
-   "forecast": -1.663,
+   "forecast": -1.698,
    "buyable": false
   },
   {
    "asset": "ETH",
    "symbol": "ETHUSDT",
-   "forecast": -1.712,
+   "forecast": -1.748,
    "buyable": false
   },
   {
    "asset": "SOL",
    "symbol": "SOLUSDT",
-   "forecast": -1.732,
+   "forecast": -1.75,
    "buyable": false
   },
   {
    "asset": "XRP",
    "symbol": "XRPUSDT",
-   "forecast": -1.825,
+   "forecast": -1.845,
    "buyable": false
   },
   {
    "asset": "ADA",
    "symbol": "ADAUSDT",
-   "forecast": -1.845,
+   "forecast": -1.871,
    "buyable": false
   },
   {
    "asset": "WLD",
    "symbol": "WLDUSDT",
-   "forecast": -1.925,
+   "forecast": -1.933,
    "buyable": false
   },
   {
    "asset": "DOGE",
    "symbol": "DOGEUSDT",
-   "forecast": -1.956,
+   "forecast": -1.951,
    "buyable": false
   }
  ],
