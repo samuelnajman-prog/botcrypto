@@ -5,11 +5,11 @@
 
 **🔴 Page en direct : https://samuelnajman-prog.github.io/botcrypto/**
 
-*Mis à jour automatiquement le 28/11/2026 à 01:28 UTC. Jour 5 du test, argent fictif. Le bot décide toutes les 4 h, à chaque fois sur 1/6 du capital (6 tranches).*
+*Mis à jour automatiquement le 28/11/2026 à 10:30 UTC. Jour 5 du test, argent fictif. Le bot décide toutes les 4 h, à chaque fois sur 1/6 du capital (6 tranches).*
 
 | Valeur | Depuis le départ | BTC, même période | Repli actuel | Investi |
 |:---:|:---:|:---:|:---:|:---:|
-| **10 000 $** | **0,0 %** | −1,8 % | 0,0 % | 0 % |
+| **10 000 $** | **0,0 %** | −3,0 % | 0,0 % | 0 % |
 
 🔴 **Marché baissier (risk-off)** : BTC à 59 923 $, −16,6 % sous sa moyenne 200 jours (71 871 $). Le bot n'investit que sur BTC/ETH, 35 % maximum, et seulement s'ils sont en tendance haussière. Cryptos en tendance haussière aujourd'hui : **0 sur 18**.
 
